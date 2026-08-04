@@ -28,9 +28,9 @@ export const PRODUCTS: Product[] = [
     description:
       "Heavyweight combed cotton with a boxy, intentional fall. Substantial enough to stand on its own, soft enough to live in all day.",
     details: ["Bio-washed combed cotton", "Ribbed collar, shoulder taped", "Pre-shrunk, colour-locked"],
-    colors: ["Black", "Off White", "Warm Beige", "Charcoal", "Olive"],
+    colors: ["Lavender", "Coffee-brown", "Maroon"],
     sizes: SIZES,
-    price: "₹999 – ₹1,199",
+    price: "₹799/-",
   },
   {
     id: "regular-240",
@@ -41,9 +41,9 @@ export const PRODUCTS: Product[] = [
     description:
       "A clean, true-to-size cut for work, travel and everything between. Tailored through the body without ever feeling tight.",
     details: ["240 GSM single jersey", "Straight hem, no roll", "Holds shape past 40 washes"],
-    colors: ["Black", "White", "Warm Beige", "Charcoal"],
+    colors: ["Black", "White", "Coffee-brown"],
     sizes: SIZES,
-    price: "₹899 – ₹1,099",
+    price: "₹699",
   },
   {
     id: "terry-260",
@@ -52,23 +52,23 @@ export const PRODUCTS: Product[] = [
     image: terry,
     tagline: "Weight you can feel, softness you notice",
     description:
-      "Loopback French terry with a quiet texture and a heavier hand. Our most comfortable piece, built for cooler evenings.",
+      "Loopback French terry with a quiet texture and a heavier hand. Our most comfortable piece, built for the whole day.",
     details: ["260 GSM loopback terry", "Dropped shoulder, relaxed body", "Brushed interior"],
-    colors: ["Olive", "Charcoal", "Warm Beige", "Black"],
+    colors: ["Black", "White", "Biege"],
     sizes: SIZES,
-    price: "₹1,299 – ₹1,499",
+    price: "₹949/-",
   },
   {
     id: "acid-wash",
-    name: "The Acid Wash Oversized",
+    name: "The Lava-sprayed Acid Wash Oversized",
     fabric: "Premium Garment-Dyed Cotton",
     image: acid,
     tagline: "Character in every wash, no two alike",
     description:
       "A hand-finished acid wash on heavyweight cotton. Broken in from day one, with depth that keeps improving.",
     details: ["Garment-dyed and hand washed", "Unique tonal variation", "Softened, worn-in feel"],
-    colors: ["Washed Black", "Washed Charcoal", "Washed Olive"],
+    colors: ["Black", "Light Grey"],
     sizes: SIZES,
-    price: "₹1,199 – ₹1,399",
+    price: "₹1,199/-",
   },
 ];
