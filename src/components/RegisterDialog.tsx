@@ -227,7 +227,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                     id="fullName"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    autoComplete="name"
+                    autoComplete="off"
                     maxLength={100}
                     placeholder="Abbas Badwahwala"
                     className="h-11 rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0"
@@ -241,7 +241,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                       inputMode="numeric"
                       value={mobile}
                       onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      autoComplete="tel"
+                      autoComplete="off"
                       placeholder="9876543210"
                       className="h-11 rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0"
                     />
@@ -251,7 +251,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                       id="city"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      autoComplete="address-level2"
+                      autoComplete="off"
                       maxLength={80}
                       placeholder="Indore"
                       className="h-11 rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0"
@@ -271,7 +271,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
+                    autoComplete="off"
                     maxLength={255}
                     placeholder="you@email.com"
                     className="h-11 rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0"
