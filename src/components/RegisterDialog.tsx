@@ -309,7 +309,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                   <fieldset>
                     <legend className="eyebrow">Preferred size</legend>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {SIZES.map((s) => (
+                      {sizeOptions.map((s) => (
                         <button
                           type="button"
                           key={s}
