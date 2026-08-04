@@ -113,8 +113,8 @@ function Hero({ onRegister }: { onRegister: () => void }) {
             wearing every day.
           </h1>
           <p className="mt-8 max-w-md text-base leading-relaxed text-muted-foreground">
-            Heavyweight 240 GSM cotton, cut for real Indian weather and real everyday life. Premium
-            quality, honestly priced — no logos shouting, nothing you have to think about.
+            Heavyweight 240-260 GSM cotton, cut for real Indian weather and real everyday life.
+            Premium quality, honestly priced, no logos shouting, nothing you have to think about.
           </p>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -132,7 +132,7 @@ function Hero({ onRegister }: { onRegister: () => void }) {
 
           <div className="mt-14 grid max-w-lg grid-cols-3 gap-6 border-t border-border pt-8">
             {[
-              ["240–260", "GSM heavyweight"],
+              ["240–300", "GSM heavyweight"],
               ["S–XXL", "Every fit"],
               ["10%", "Launch discount"],
             ].map(([value, label]) => (
@@ -162,11 +162,11 @@ function Hero({ onRegister }: { onRegister: () => void }) {
 
 function Marquee() {
   const items = [
-    "240 GSM combed cotton",
+    "100% COMBED COTTON",
     "Pre-shrunk & colour locked",
     "Made in India",
     "Prepaid, pan-India delivery",
-    "Honest pricing, always",
+    "\n",
   ];
   return (
     <div className="border-y border-border bg-ink py-4 text-ink-foreground">
@@ -399,8 +399,8 @@ function Founder() {
           <div>
             <blockquote className="font-display text-2xl leading-snug sm:text-3xl">
               "I kept buying tees that looked right in a photo and felt wrong by the third wash. So
-              we built the one I wanted to own — heavier cotton, honest pricing, and a fit that
-              works whether you're in a lecture hall or a client meeting. That's the whole brief."
+              we built the one I wanted to own; heavier cotton, honest pricing, and a fit that
+              works whether you're in a lecture hall or a client meeting. That's the whole point."
             </blockquote>
             <p className="mt-8 text-xs tracking-[0.18em] text-muted-foreground uppercase">
               Abbas Badwahwala · Founder, AB Collection
@@ -408,7 +408,7 @@ function Founder() {
             <div className="mt-12 grid gap-6 border-t border-border pt-8 sm:grid-cols-3">
               {[
                 ["Made in India", "Produced with partner units we visit ourselves."],
-                ["7-day exchange", "Wrong size? Swap it, no questions."],
+                ["7-day exchange", "Product defect? Swap it, no questions."],
                 ["Direct to you", "No middlemen, so quality goes into the fabric."],
               ].map(([title, body]) => (
                 <div key={title}>
@@ -425,7 +425,7 @@ function Founder() {
 }
 
 const FAQS = [
-  ["When will the collection launch?", "Very soon. Register your interest to be the first to know — registered customers get 48 hours of early access before the public."],
+  ["When will the collection launch?", "Very soon. Register your interest to be the first to know, registered customers get 48 hours of early access before the public."],
   ["How does the pre-launch offer work?", "Register before launch and we reserve an exclusive 10% launch discount on your selected pieces. You'll receive your code by WhatsApp and email."],
   ["Am I paying anything today?", "No. This is only an interest registration. Nothing is charged now, and you'll receive purchase instructions when the collection launches."],
   ["Can I select multiple products?", "Yes. Select as many pieces as you like — your discount applies across your selection."],
@@ -507,7 +507,7 @@ function Footer() {
           <div>
             <p className="font-display text-3xl tracking-[0.16em] uppercase">AB Collection</p>
             <p className="mt-6 max-w-sm text-sm leading-relaxed text-ink-foreground/60">
-              Premium everyday essentials for men — exceptional comfort, timeless design and honest
+              Premium everyday essentials for men; exceptional comfort, timeless design and honest
               pricing. {LAUNCH_LABEL}.
             </p>
           </div>
