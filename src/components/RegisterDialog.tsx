@@ -52,6 +52,17 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
     return Array.from(new Set(pool.flatMap((p) => p.colors)));
   }, [products, product]);
 
+  const sizeOptions = useMemo(() => {
+    const selected = PRODUCTS.filter((p) => products.includes(p.name));
+    const pool = selected.length ? selected : product ? [product] : PRODUCTS;
+    return SIZES.filter((s) => pool.every((p) => p.sizes.includes(s)));
+  }, [products, product]);
+
+  useEffect(() => {
+    if (size && !sizeOptions.includes(size)) setSize("");
+  }, [sizeOptions, size]);
+
+
   const toggle = (list: string[], value: string) =>
     list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 
