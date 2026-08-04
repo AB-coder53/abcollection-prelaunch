@@ -113,7 +113,7 @@ function Hero({ onRegister }: { onRegister: () => void }) {
             wearing every day.
           </h1>
           <p className="mt-8 max-w-md text-base leading-relaxed text-muted-foreground">
-            Heavyweight 240-260 GSM cotton, cut for real Indian weather and real everyday life.
+            Heavyweight 240-300 GSM cotton, cut for real Indian weather and real everyday life.
             Premium quality, honestly priced, no logos shouting, nothing you have to think about.
           </p>
 
