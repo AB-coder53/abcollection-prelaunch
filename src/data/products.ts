@@ -2,6 +2,8 @@ import oversized from "@/assets/tee-oversized.jpg";
 import regular from "@/assets/tee-regular.jpg";
 import terry from "@/assets/tee-terry.jpg";
 import acid from "@/assets/tee-acid.jpg";
+import sunfaded from "@/assets/tee-sunfaded.jpg";
+import terry300 from "@/assets/tee-terry300.jpg";
 
 export type Product = {
   id: string;
@@ -17,6 +19,7 @@ export type Product = {
 };
 
 export const SIZES = ["S", "M", "L", "XL", "XXL"];
+export const SIZES_S_XL = ["S", "M", "L", "XL"];
 
 export const PRODUCTS: Product[] = [
   {
@@ -55,8 +58,34 @@ export const PRODUCTS: Product[] = [
       "Loopback French terry with a quiet texture and a heavier hand. Our most comfortable piece, built for the whole day.",
     details: ["260 GSM loopback terry", "Dropped shoulder, relaxed body", "Brushed interior"],
     colors: ["Black", "White", "Biege"],
-    sizes: SIZES,
+    sizes: SIZES_S_XL,
     price: "₹949/-",
+  },
+  {
+    id: "terry-300",
+    name: "The French Terry Oversized 300",
+    fabric: "300 GSM French Terry",
+    image: terry300,
+    tagline: "Our heaviest hand, built to last",
+    description:
+      "A denser 300 GSM loopback terry with a sculpted, premium fall. The most substantial piece in the collection, and the one you'll reach for first.",
+    details: ["300 GSM loopback terry", "Structured oversized silhouette", "Reinforced neck and shoulders"],
+    colors: ["Black", "White"],
+    sizes: SIZES_S_XL,
+    price: "₹999/-",
+  },
+  {
+    id: "sun-faded-240",
+    name: "The Sun-Faded Tee",
+    fabric: "240 GSM Special Wash Cotton",
+    image: sunfaded,
+    tagline: "Faded like a favourite, from day one",
+    description:
+      "A special sun-fade wash on 240 GSM cotton that gives every piece a softened, lived-in tone. Broken in before it reaches you.",
+    details: ["240 GSM special wash cotton", "Tonal sun-faded finish", "Soft, worn-in hand feel"],
+    colors: ["Green", "Grey"],
+    sizes: SIZES_S_XL,
+    price: "₹1,099/-",
   },
   {
     id: "acid-wash",
@@ -68,7 +97,7 @@ export const PRODUCTS: Product[] = [
       "A hand-finished acid wash on heavyweight cotton. Broken in from day one, with depth that keeps improving.",
     details: ["Garment-dyed and hand washed", "Unique tonal variation", "Softened, worn-in feel"],
     colors: ["Black", "Light Grey"],
-    sizes: SIZES,
+    sizes: SIZES_S_XL,
     price: "₹1,199/-",
   },
 ];

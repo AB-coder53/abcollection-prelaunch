@@ -278,6 +278,9 @@ function Products({ onRegister }: { onRegister: (product: Product) => void }) {
                 <p className="mt-5 text-xs text-muted-foreground">
                   <span className="text-foreground">Colours:</span> {product.colors.join(" · ")}
                 </p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  <span className="text-foreground">Sizes:</span> {product.sizes.join(" · ")}
+                </p>
                 <Button
                   onClick={() => onRegister(product)}
                   variant="outline"
