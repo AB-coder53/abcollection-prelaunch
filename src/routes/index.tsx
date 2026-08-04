@@ -278,6 +278,9 @@ function Products({ onRegister }: { onRegister: (product: Product) => void }) {
                 <p className="mt-5 text-xs text-muted-foreground">
                   <span className="text-foreground">Colours:</span> {product.colors.join(" · ")}
                 </p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  <span className="text-foreground">Sizes:</span> {product.sizes.join(" · ")}
+                </p>
                 <Button
                   onClick={() => onRegister(product)}
                   variant="outline"
@@ -429,7 +432,7 @@ const FAQS = [
   ["How does the pre-launch offer work?", "Register before launch and we reserve an exclusive 10% launch discount on your selected pieces. You'll receive your code by WhatsApp and email."],
   ["Am I paying anything today?", "No. This is only an interest registration. Nothing is charged now, and you'll receive purchase instructions when the collection launches."],
   ["Can I select multiple products?", "Yes. Select as many pieces as you like — your discount applies across your selection."],
-  ["Will my size be available?", "Oversized and Regular Fit options will be available from S to XXL, depending on the product. Registering early helps us produce the right sizes in the right quantities."],
+  ["Will my size be available?", "The 240 GSM Oversized Tee and the Regular Fit Tee launch in S to XXL. All other pieces launch in S to XL. Registering early helps us produce the right sizes in the right quantities."],
   ["Is Cash on Delivery available?", "Payment will be prepaid only at launch. This keeps costs down and pricing honest — savings we pass back to you."],
   ["How will you use my details?", "Only to tell you about the launch and fulfil your order. We never sell your data, and you can unsubscribe at any time."],
 ];

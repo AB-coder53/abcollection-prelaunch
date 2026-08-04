@@ -52,6 +52,17 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
     return Array.from(new Set(pool.flatMap((p) => p.colors)));
   }, [products, product]);
 
+  const sizeOptions = useMemo(() => {
+    const selected = PRODUCTS.filter((p) => products.includes(p.name));
+    const pool = selected.length ? selected : product ? [product] : PRODUCTS;
+    return SIZES.filter((s) => pool.every((p) => p.sizes.includes(s)));
+  }, [products, product]);
+
+  useEffect(() => {
+    if (size && !sizeOptions.includes(size)) setSize("");
+  }, [sizeOptions, size]);
+
+
   const toggle = (list: string[], value: string) =>
     list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 
@@ -216,7 +227,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                     id="fullName"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    autoComplete="name"
+                    autoComplete="off"
                     maxLength={100}
                     placeholder="Abbas Badwahwala"
                     className="h-11 rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0"
@@ -230,7 +241,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                       inputMode="numeric"
                       value={mobile}
                       onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      autoComplete="tel"
+                      autoComplete="off"
                       placeholder="9876543210"
                       className="h-11 rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0"
                     />
@@ -240,7 +251,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                       id="city"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      autoComplete="address-level2"
+                      autoComplete="off"
                       maxLength={80}
                       placeholder="Indore"
                       className="h-11 rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0"
@@ -260,7 +271,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="email"
+                    autoComplete="off"
                     maxLength={255}
                     placeholder="you@email.com"
                     className="h-11 rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0"
@@ -298,7 +309,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                   <fieldset>
                     <legend className="eyebrow">Preferred size</legend>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {SIZES.map((s) => (
+                      {sizeOptions.map((s) => (
                         <button
                           type="button"
                           key={s}
