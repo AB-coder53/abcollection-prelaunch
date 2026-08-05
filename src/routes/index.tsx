@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowRight, Instagram, Mail, Minus, Plus, Truck, Shield, Ruler } from "lucide-react";
 
-import heroImage from "@/assets/hero.jpg";
+import heroAsset from "@/assets/hero-beige.png.asset.json";
 import fabricImage from "@/assets/fabric.jpg";
 import { PRODUCTS, type Product } from "@/data/products";
 import { Reveal } from "@/components/Reveal";
@@ -148,10 +148,10 @@ function Hero({ onRegister }: { onRegister: () => void }) {
 
         <div className="relative min-h-[60vh] overflow-hidden bg-muted lg:min-h-[86vh]">
           <img
-            src={heroImage}
+            src={heroAsset.url}
             alt="Man wearing a warm beige oversized premium cotton t-shirt from AB Collection"
-            width={1408}
-            height={1760}
+            width={1067}
+            height={1600}
             className="h-full w-full object-cover object-top"
           />
         </div>
