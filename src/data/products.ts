@@ -1,6 +1,12 @@
 import oversized from "@/assets/tee-oversized.jpg";
 import regular from "@/assets/tee-regular.jpg";
-import terry from "@/assets/tee-terry.jpg";
+import terryBeigeAsset from "@/assets/terry-beige.png.asset.json";
+import terryBlackAsset from "@/assets/terry-black.png.asset.json";
+import terryWhiteAsset from "@/assets/terry-white.png.asset.json";
+
+const terryBeige = terryBeigeAsset.url;
+const terryBlack = terryBlackAsset.url;
+const terryWhite = terryWhiteAsset.url;
 import acid from "@/assets/tee-acid.jpg";
 import sunfaded from "@/assets/tee-sunfaded.jpg";
 import terry300 from "@/assets/tee-terry300.jpg";
