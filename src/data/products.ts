@@ -60,7 +60,8 @@ export const PRODUCTS: Product[] = [
     id: "terry-260",
     name: "The French Terry Oversized",
     fabric: "260 GSM French Terry",
-    image: terry,
+    image: terryBeige,
+    images: [terryBeige, terryBlack, terryWhite],
     tagline: "Weight you can feel, softness you notice",
     description:
       "Loopback French terry with a quiet texture and a heavier hand. Our most comfortable piece, built for the whole day.",
