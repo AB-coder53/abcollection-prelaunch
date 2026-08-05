@@ -331,7 +331,7 @@ function ImageSlider({ product }: { product: Product }) {
             loading="lazy"
             width={1120}
             height={1408}
-            className="h-full w-full shrink-0 object-cover"
+            className="h-full w-full shrink-0 object-cover object-top"
           />
         ))}
       </div>
