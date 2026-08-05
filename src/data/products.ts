@@ -1,6 +1,12 @@
 import oversized from "@/assets/tee-oversized.jpg";
 import regular from "@/assets/tee-regular.jpg";
-import terry from "@/assets/tee-terry.jpg";
+import terryBeigeAsset from "@/assets/terry-beige.png.asset.json";
+import terryBlackAsset from "@/assets/terry-black.png.asset.json";
+import terryWhiteAsset from "@/assets/terry-white.png.asset.json";
+
+const terryBeige = terryBeigeAsset.url;
+const terryBlack = terryBlackAsset.url;
+const terryWhite = terryWhiteAsset.url;
 import acid from "@/assets/tee-acid.jpg";
 import sunfaded from "@/assets/tee-sunfaded.jpg";
 import terry300 from "@/assets/tee-terry300.jpg";
@@ -54,7 +60,8 @@ export const PRODUCTS: Product[] = [
     id: "terry-260",
     name: "The French Terry Oversized",
     fabric: "260 GSM French Terry",
-    image: terry,
+    image: terryBeige,
+    images: [terryBeige, terryBlack, terryWhite],
     tagline: "Weight you can feel, softness you notice",
     description:
       "Loopback French terry with a quiet texture and a heavier hand. Our most comfortable piece, built for the whole day.",
