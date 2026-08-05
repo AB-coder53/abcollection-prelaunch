@@ -1,6 +1,17 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, Instagram, Mail, Minus, Plus, Truck, Shield, Ruler } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Instagram,
+  Mail,
+  Minus,
+  Plus,
+  Truck,
+  Shield,
+  Ruler,
+} from "lucide-react";
 
 import heroAsset from "@/assets/hero-beige.png.asset.json";
 import fabricImage from "@/assets/fabric.jpg";
@@ -240,15 +251,19 @@ function Products({ onRegister }: { onRegister: (product: Product) => void }) {
             <Reveal key={product.id} delay={index * 80}>
               <article className="group">
                 <div className="relative overflow-hidden bg-background">
-                  <img
-                    src={product.image}
-                    alt={`${product.name} — ${product.fabric}`}
-                    loading="lazy"
-                    width={1120}
-                    height={1408}
-                    className="img-zoom aspect-[4/5] w-full object-cover"
-                  />
-                  <span className="absolute top-4 left-4 bg-background/90 px-3 py-1 text-[0.6rem] tracking-[0.18em] uppercase">
+                  {product.images && product.images.length > 1 ? (
+                    <ImageSlider product={product} />
+                  ) : (
+                    <img
+                      src={product.image}
+                      alt={`${product.name} — ${product.fabric}`}
+                      loading="lazy"
+                      width={1120}
+                      height={1408}
+                      className="img-zoom aspect-[4/5] w-full object-cover"
+                    />
+                  )}
+                  <span className="absolute top-4 left-4 z-10 bg-background/90 px-3 py-1 text-[0.6rem] tracking-[0.18em] uppercase">
                     {LAUNCH_LABEL}
                   </span>
                 </div>
@@ -294,6 +309,62 @@ function Products({ onRegister }: { onRegister: (product: Product) => void }) {
         </div>
       </div>
     </section>
+  );
+}
+
+function ImageSlider({ product }: { product: Product }) {
+  const images = product.images ?? [product.image];
+  const [index, setIndex] = useState(0);
+  const go = (dir: number) => setIndex((i) => (i + dir + images.length) % images.length);
+
+  return (
+    <div className="relative aspect-[4/5] w-full overflow-hidden">
+      <div
+        className="flex h-full w-full transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+        style={{ transform: `translateX(-${index * 100}%)` }}
+      >
+        {images.map((src, i) => (
+          <img
+            key={src}
+            src={src}
+            alt={`${product.name} — ${product.colors[i] ?? product.fabric}`}
+            loading="lazy"
+            width={1120}
+            height={1408}
+            className="h-full w-full shrink-0 object-cover"
+          />
+        ))}
+      </div>
+
+      <button
+        type="button"
+        aria-label="Previous colour"
+        onClick={() => go(-1)}
+        className="absolute top-1/2 left-3 z-10 flex size-9 -translate-y-1/2 items-center justify-center bg-background/85 text-foreground transition-opacity hover:bg-background"
+      >
+        <ChevronLeft className="size-4" strokeWidth={1.5} />
+      </button>
+      <button
+        type="button"
+        aria-label="Next colour"
+        onClick={() => go(1)}
+        className="absolute top-1/2 right-3 z-10 flex size-9 -translate-y-1/2 items-center justify-center bg-background/85 text-foreground transition-opacity hover:bg-background"
+      >
+        <ChevronRight className="size-4" strokeWidth={1.5} />
+      </button>
+
+      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
+        {images.map((src, i) => (
+          <button
+            key={src}
+            type="button"
+            aria-label={`View ${product.colors[i] ?? `image ${i + 1}`}`}
+            onClick={() => setIndex(i)}
+            className={`h-1.5 w-6 transition-colors ${i === index ? "bg-foreground" : "bg-foreground/25"}`}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
