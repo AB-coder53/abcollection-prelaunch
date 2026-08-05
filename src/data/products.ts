@@ -3,12 +3,19 @@ import regular from "@/assets/tee-regular.jpg";
 import terryBeigeAsset from "@/assets/terry-beige.png.asset.json";
 import terryBlackAsset from "@/assets/terry-black.png.asset.json";
 import terryWhiteAsset from "@/assets/terry-white.png.asset.json";
+import sunGreenAsset from "@/assets/Sun_faded_green.png.asset.json";
+import sunGreen2Asset from "@/assets/Sun_faded_green_2.png.asset.json";
+import sunGrey3Asset from "@/assets/Sun_faded_grey_3.png.asset.json";
+import sunGrey2Asset from "@/assets/Sun_faded_grey_2.png.asset.json";
 
 const terryBeige = terryBeigeAsset.url;
 const terryBlack = terryBlackAsset.url;
 const terryWhite = terryWhiteAsset.url;
+const sunGreen = sunGreenAsset.url;
+const sunGreen2 = sunGreen2Asset.url;
+const sunGrey3 = sunGrey3Asset.url;
+const sunGrey2 = sunGrey2Asset.url;
 import acid from "@/assets/tee-acid.jpg";
-import sunfaded from "@/assets/tee-sunfaded.jpg";
 import terry300 from "@/assets/tee-terry300.jpg";
 import terry300White from "@/assets/tee-terry300-white.jpg";
 
