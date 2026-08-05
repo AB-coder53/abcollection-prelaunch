@@ -4,12 +4,14 @@ import terry from "@/assets/tee-terry.jpg";
 import acid from "@/assets/tee-acid.jpg";
 import sunfaded from "@/assets/tee-sunfaded.jpg";
 import terry300 from "@/assets/tee-terry300.jpg";
+import terry300White from "@/assets/tee-terry300-white.jpg";
 
 export type Product = {
   id: string;
   name: string;
   fabric: string;
   image: string;
+  images?: string[];
   tagline: string;
   description: string;
   details: string[];
@@ -66,6 +68,7 @@ export const PRODUCTS: Product[] = [
     name: "The French Terry Oversized 300",
     fabric: "300 GSM French Terry",
     image: terry300,
+    images: [terry300, terry300White],
     tagline: "Our heaviest hand, built to last",
     description:
       "A denser 300 GSM loopback terry with a sculpted, premium fall. The most substantial piece in the collection, and the one you'll reach for first.",
