@@ -225,7 +225,7 @@ function Products({ onRegister }: { onRegister: (product: Product) => void }) {
             <div>
               <p className="eyebrow">The first collection</p>
               <h2 className="mt-4 font-display text-4xl leading-tight sm:text-5xl">
-                Four pieces. Nothing extra.
+                Six pieces. Nothing extra.
               </h2>
             </div>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
