@@ -240,15 +240,19 @@ function Products({ onRegister }: { onRegister: (product: Product) => void }) {
             <Reveal key={product.id} delay={index * 80}>
               <article className="group">
                 <div className="relative overflow-hidden bg-background">
-                  <img
-                    src={product.image}
-                    alt={`${product.name} — ${product.fabric}`}
-                    loading="lazy"
-                    width={1120}
-                    height={1408}
-                    className="img-zoom aspect-[4/5] w-full object-cover"
-                  />
-                  <span className="absolute top-4 left-4 bg-background/90 px-3 py-1 text-[0.6rem] tracking-[0.18em] uppercase">
+                  {product.images && product.images.length > 1 ? (
+                    <ImageSlider product={product} />
+                  ) : (
+                    <img
+                      src={product.image}
+                      alt={`${product.name} — ${product.fabric}`}
+                      loading="lazy"
+                      width={1120}
+                      height={1408}
+                      className="img-zoom aspect-[4/5] w-full object-cover"
+                    />
+                  )}
+                  <span className="absolute top-4 left-4 z-10 bg-background/90 px-3 py-1 text-[0.6rem] tracking-[0.18em] uppercase">
                     {LAUNCH_LABEL}
                   </span>
                 </div>
