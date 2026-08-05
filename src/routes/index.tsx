@@ -165,7 +165,7 @@ function Marquee() {
     "100% COMBED COTTON",
     "Pre-shrunk & colour locked",
     "Made in India",
-    "Prepaid, pan-India delivery",
+    "\u00a0 \u00a0 \u00a0 \u00a0 \u00a0PAN-INDIA DELIVERY",
     "\n",
   ];
   return (
