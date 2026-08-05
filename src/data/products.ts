@@ -95,7 +95,8 @@ export const PRODUCTS: Product[] = [
     id: "sun-faded-240",
     name: "The Sun-Faded Tee",
     fabric: "240 GSM Special Wash Cotton",
-    image: sunfaded,
+    image: sunGreen,
+    images: [sunGreen, sunGreen2, sunGrey3, sunGrey2],
     tagline: "Faded like a favourite, from day one",
     description:
       "A special sun-fade wash on 240 GSM cotton that gives every piece a softened, lived-in tone. Broken in before it reaches you.",
