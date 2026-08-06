@@ -34,8 +34,11 @@ import regularBrownAsset from "@/assets/regular-brown.webp.asset.json";
 const regularWhite = regularWhiteAsset.url;
 const regularBlack = regularBlackAsset.url;
 const regularBrown = regularBrownAsset.url;
-import terry300 from "@/assets/tee-terry300.jpg";
-import terry300White from "@/assets/tee-terry300-white.jpg";
+import terry300Asset from "@/assets/terry300-black.png.asset.json";
+import terry300WhiteAsset from "@/assets/terry300-white.png.asset.json";
+
+const terry300 = terry300Asset.url;
+const terry300White = terry300WhiteAsset.url;
 
 export type Product = {
   id: string;
