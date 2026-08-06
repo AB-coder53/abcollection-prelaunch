@@ -22,6 +22,13 @@ import lavaGreyAsset from "@/assets/lava-grey.png.asset.json";
 const lavaBlack = lavaBlackAsset.url;
 const lavaBlack2 = lavaBlack2Asset.url;
 const lavaGrey = lavaGreyAsset.url;
+import regularWhiteAsset from "@/assets/regular-white.webp.asset.json";
+import regularBlackAsset from "@/assets/regular-black.webp.asset.json";
+import regularBrownAsset from "@/assets/regular-brown.webp.asset.json";
+
+const regularWhite = regularWhiteAsset.url;
+const regularBlack = regularBlackAsset.url;
+const regularBrown = regularBrownAsset.url;
 import terry300 from "@/assets/tee-terry300.jpg";
 import terry300White from "@/assets/tee-terry300-white.jpg";
 
