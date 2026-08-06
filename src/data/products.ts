@@ -59,7 +59,8 @@ export const PRODUCTS: Product[] = [
     id: "oversized-240",
     name: "The Oversized Tee",
     fabric: "240 GSM Premium Cotton",
-    image: oversized,
+    image: oversizedLavender,
+    images: [oversizedLavender, oversizedBrown, oversizedMaroon],
     tagline: "Structured drape that holds its shape",
     description:
       "Heavyweight combed cotton with a boxy, intentional fall. Substantial enough to stand on its own, soft enough to live in all day.",
