@@ -1,4 +1,10 @@
-import oversized from "@/assets/tee-oversized.jpg";
+import oversizedLavenderAsset from "@/assets/oversized-lavender.png.asset.json";
+import oversizedBrownAsset from "@/assets/oversized-brown.png.asset.json";
+import oversizedMaroonAsset from "@/assets/oversized-maroon.webp.asset.json";
+
+const oversizedLavender = oversizedLavenderAsset.url;
+const oversizedBrown = oversizedBrownAsset.url;
+const oversizedMaroon = oversizedMaroonAsset.url;
 import terryBeigeAsset from "@/assets/terry-beige.png.asset.json";
 import terryBlackAsset from "@/assets/terry-black.png.asset.json";
 import terryWhiteAsset from "@/assets/terry-white.png.asset.json";
