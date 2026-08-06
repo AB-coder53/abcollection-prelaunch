@@ -1,5 +1,4 @@
 import oversized from "@/assets/tee-oversized.jpg";
-import regular from "@/assets/tee-regular.jpg";
 import terryBeigeAsset from "@/assets/terry-beige.png.asset.json";
 import terryBlackAsset from "@/assets/terry-black.png.asset.json";
 import terryWhiteAsset from "@/assets/terry-white.png.asset.json";
