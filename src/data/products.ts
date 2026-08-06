@@ -1,5 +1,4 @@
 import oversized from "@/assets/tee-oversized.jpg";
-import regular from "@/assets/tee-regular.jpg";
 import terryBeigeAsset from "@/assets/terry-beige.png.asset.json";
 import terryBlackAsset from "@/assets/terry-black.png.asset.json";
 import terryWhiteAsset from "@/assets/terry-white.png.asset.json";
@@ -22,6 +21,13 @@ import lavaGreyAsset from "@/assets/lava-grey.png.asset.json";
 const lavaBlack = lavaBlackAsset.url;
 const lavaBlack2 = lavaBlack2Asset.url;
 const lavaGrey = lavaGreyAsset.url;
+import regularWhiteAsset from "@/assets/regular-white.webp.asset.json";
+import regularBlackAsset from "@/assets/regular-black.webp.asset.json";
+import regularBrownAsset from "@/assets/regular-brown.webp.asset.json";
+
+const regularWhite = regularWhiteAsset.url;
+const regularBlack = regularBlackAsset.url;
+const regularBrown = regularBrownAsset.url;
 import terry300 from "@/assets/tee-terry300.jpg";
 import terry300White from "@/assets/tee-terry300-white.jpg";
 
@@ -60,7 +66,8 @@ export const PRODUCTS: Product[] = [
     id: "regular-240",
     name: "The Regular Fit Tee",
     fabric: "240 GSM Premium Cotton",
-    image: regular,
+    image: regularWhite,
+    images: [regularWhite, regularBlack, regularBrown],
     tagline: "The everyday standard, refined",
     description:
       "A clean, true-to-size cut for work, travel and everything between. Tailored through the body without ever feeling tight.",
