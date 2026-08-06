@@ -115,7 +115,8 @@ export const PRODUCTS: Product[] = [
     id: "acid-wash",
     name: "The Lava-sprayed Acid Wash Oversized",
     fabric: "Premium Garment-Dyed Cotton",
-    image: acid,
+    image: lavaBlack,
+    images: [lavaBlack, lavaBlack2, lavaGrey],
     tagline: "Character in every wash, no two alike",
     description:
       "A hand-finished acid wash on heavyweight cotton. Broken in from day one, with depth that keeps improving.",
