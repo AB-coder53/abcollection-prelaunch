@@ -67,8 +67,8 @@ export const PRODUCTS: Product[] = [
     id: "regular-240",
     name: "The Regular Fit Tee",
     fabric: "240 GSM Premium Cotton",
-    image: regular,
-    tagline: "The everyday standard, refined",
+    image: regularWhite,
+    images: [regularWhite, regularBlack, regularBrown],
     description:
       "A clean, true-to-size cut for work, travel and everything between. Tailored through the body without ever feeling tight.",
     details: ["240 GSM single jersey", "Straight hem, no roll", "Holds shape past 40 washes"],
