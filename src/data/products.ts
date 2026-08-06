@@ -69,6 +69,7 @@ export const PRODUCTS: Product[] = [
     fabric: "240 GSM Premium Cotton",
     image: regularWhite,
     images: [regularWhite, regularBlack, regularBrown],
+    tagline: "The everyday standard, refined",
     description:
       "A clean, true-to-size cut for work, travel and everything between. Tailored through the body without ever feeling tight.",
     details: ["240 GSM single jersey", "Straight hem, no roll", "Holds shape past 40 washes"],
