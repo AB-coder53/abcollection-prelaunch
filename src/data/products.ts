@@ -35,7 +35,7 @@ const regularWhite = regularWhiteAsset.url;
 const regularBlack = regularBlackAsset.url;
 const regularBrown = regularBrownAsset.url;
 import terry300Asset from "@/assets/terry300-black.png.asset.json";
-import terry300WhiteAsset from "@/assets/terry300-white.png.asset.json";
+import terry300WhiteAsset from "@/assets/terry300-white-v2.png.asset.json";
 
 const terry300 = terry300Asset.url;
 const terry300White = terry300WhiteAsset.url;
