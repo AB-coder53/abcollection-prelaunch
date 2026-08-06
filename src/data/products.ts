@@ -15,7 +15,13 @@ const sunGreen = sunGreenAsset.url;
 const sunGreen2 = sunGreen2Asset.url;
 const sunGrey3 = sunGrey3Asset.url;
 const sunGrey2 = sunGrey2Asset.url;
-import acid from "@/assets/tee-acid.jpg";
+import lavaBlackAsset from "@/assets/lava-black.png.asset.json";
+import lavaBlack2Asset from "@/assets/lava-black-2.png.asset.json";
+import lavaGreyAsset from "@/assets/lava-grey.png.asset.json";
+
+const lavaBlack = lavaBlackAsset.url;
+const lavaBlack2 = lavaBlack2Asset.url;
+const lavaGrey = lavaGreyAsset.url;
 import terry300 from "@/assets/tee-terry300.jpg";
 import terry300White from "@/assets/tee-terry300-white.jpg";
 
