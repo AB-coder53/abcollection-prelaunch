@@ -105,7 +105,7 @@ function Header({ onRegister }: { onRegister: () => void }) {
           onClick={onRegister}
           className="h-10 rounded-none px-5 text-[0.65rem] tracking-[0.2em] uppercase"
         >
-          Reserve 10%
+          GET EARLY ACCESS + 10%
         </Button>
       </div>
     </header>
@@ -119,9 +119,9 @@ function Hero({ onRegister }: { onRegister: () => void }) {
         <div className="flex flex-col justify-center px-6 py-20 lg:px-10 lg:py-32">
           <p className="eyebrow">{LAUNCH_LABEL} · First collection</p>
           <h1 className="mt-8 font-display text-5xl leading-[1.02] sm:text-6xl lg:text-7xl">
-            Essentials worth
+            Built for comfort.
             <br />
-            wearing every day.
+            Designed to be worn every day.
           </h1>
           <p className="mt-8 max-w-md text-base leading-relaxed text-muted-foreground">
             Heavyweight 240-300 GSM cotton, cut for real Indian weather and real everyday life.
@@ -133,7 +133,7 @@ function Hero({ onRegister }: { onRegister: () => void }) {
               onClick={onRegister}
               className="h-14 rounded-none px-10 text-xs tracking-[0.2em] uppercase"
             >
-              Reserve your 10% <ArrowRight className="ml-2 size-4" strokeWidth={1.5} />
+              GET EARLY ACCESS + 10% <ArrowRight className="ml-2 size-4" strokeWidth={1.5} />
             </Button>
             <p className="text-xs leading-relaxed text-muted-foreground">
               No payment today.
@@ -412,7 +412,7 @@ function FabricStory({ onRegister }: { onRegister: () => void }) {
             variant="outline"
             className="mt-12 h-13 rounded-none border-ink-foreground/40 bg-transparent px-8 text-xs tracking-[0.2em] text-ink-foreground uppercase hover:bg-ink-foreground hover:text-ink"
           >
-            Reserve your 10%
+            GET EARLY ACCESS + 10%
           </Button>
         </Reveal>
       </div>
@@ -456,7 +456,7 @@ function Offer({ onRegister }: { onRegister: () => void }) {
             onClick={onRegister}
             className="mt-14 h-14 rounded-none px-12 text-xs tracking-[0.2em] uppercase"
           >
-            Reserve my 10% discount
+            GET 10% DISCOUNT
           </Button>
         </Reveal>
       </div>
@@ -473,8 +473,9 @@ function Founder() {
           <div>
             <blockquote className="font-display text-2xl leading-snug sm:text-3xl">
               "I kept buying tees that looked right in a photo and felt wrong by the third wash. So
-              we built the one I wanted to own; heavier cotton, honest pricing, and a fit that
-              works whether you're in a lecture hall or a client meeting. That's the whole point."
+              we built the one I wanted to wear: heavier cotton, honest pricing, and a fit that
+              works whether you're in a lecture hall or a client meeting. That's the whole point.
+              I'll only sell what I wear."
             </blockquote>
             <p className="mt-8 text-xs tracking-[0.18em] text-muted-foreground uppercase">
               Abbas Badwahwala · Founder, AB Collection
@@ -565,7 +566,7 @@ function Faq({ onRegister }: { onRegister: () => void }) {
             onClick={onRegister}
             className="mt-10 h-13 rounded-none px-10 text-xs tracking-[0.2em] uppercase"
           >
-            Reserve your 10%
+            GET EARLY ACCESS + 10%
           </Button>
         </div>
       </div>
@@ -580,9 +581,10 @@ function Footer() {
         <div className="grid gap-12 lg:grid-cols-[1fr_auto]">
           <div>
             <p className="font-display text-3xl tracking-[0.16em] uppercase">AB Collection</p>
-            <p className="mt-6 max-w-sm text-sm leading-relaxed text-ink-foreground/60">
+            <p className="mt-6 max-w-sm text-sm leading-relaxed text-ink-foreground/60 whitespace-pre-line">
               Premium everyday essentials for men; exceptional comfort, timeless design and honest
-              pricing. {LAUNCH_LABEL}.
+              pricing.&nbsp;{"\n\n\n"}
+              Launching soon.
             </p>
           </div>
           <div className="flex flex-col gap-4 text-sm lg:items-end">
