@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Loader2, MessageCircle } from "lucide-react";
+import { ArrowLeft, Check, Loader2, X } from "lucide-react";
 
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { PRODUCTS, SIZES, type Product } from "@/data/products";
+import { PRODUCTS, type Product } from "@/data/products";
 import { registerInterest } from "@/lib/leads.functions";
 
 type Props = {
@@ -16,89 +16,147 @@ type Props = {
   product: Product | null;
 };
 
-type Errors = Partial<Record<string, string>>;
+const STORAGE_KEY = "ab-reservation-draft";
+const TOTAL_STEPS = 4;
+const BASE_SIZES = ["S", "M", "L", "XL"];
+const COLOR_OPTIONS = ["Black", "White", "Beige", "Grey", "Olive", "Other"];
+
+type Draft = {
+  step: number;
+  products: string[];
+  size: string;
+  fullName: string;
+  mobile: string;
+  color: string;
+  city: string;
+  email: string;
+};
+
+const EMPTY: Draft = {
+  step: 1,
+  products: [],
+  size: "",
+  fullName: "",
+  mobile: "",
+  color: "",
+  city: "",
+  email: "",
+};
+
+const isValidMobile = (value: string) => /^[6-9]\d{9}$/.test(value.trim());
+const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
 export function RegisterDialog({ open, onOpenChange, product }: Props) {
   const submit = useServerFn(registerInterest);
 
-  const [fullName, setFullName] = useState("");
-  const [mobile, setMobile] = useState("");
-  const [email, setEmail] = useState("");
-  const [city, setCity] = useState("");
-  const [products, setProducts] = useState<string[]>([]);
-  const [size, setSize] = useState("");
-  const [color, setColor] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  const [draft, setDraft] = useState<Draft>(EMPTY);
+  const [touched, setTouched] = useState<{ fullName?: boolean; mobile?: boolean; email?: boolean }>(
+    {},
+  );
   const [whatsappOptIn, setWhatsappOptIn] = useState(true);
-  const [marketingConsent, setMarketingConsent] = useState(true);
   const [terms, setTerms] = useState(false);
-
-  const [errors, setErrors] = useState<Errors>({});
+  const [termsError, setTermsError] = useState(false);
+  const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState<{ discountCode: string } | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const hydrated = useRef(false);
 
+  const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
+    setDraft((prev) => ({ ...prev, [key]: value }));
+
+  // Restore any saved progress when the flow opens.
   useEffect(() => {
     if (!open) return;
     setDone(null);
-    setErrors({});
-    setProducts(product ? [product.name] : []);
-    setSize("");
-    setColor(product?.colors[0] ?? "");
+    setFormError("");
+    setTermsError(false);
+    setTouched({});
+
+    let restored: Draft | null = null;
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (raw) restored = { ...EMPTY, ...(JSON.parse(raw) as Partial<Draft>) };
+    } catch {
+      restored = null;
+    }
+
+    const base = restored ?? EMPTY;
+    const preselected =
+      product && !base.products.includes(product.name)
+        ? [...base.products, product.name]
+        : base.products;
+
+    setDraft({ ...base, products: preselected });
+    hydrated.current = true;
   }, [open, product]);
 
-  const colorOptions = useMemo(() => {
-    const selected = PRODUCTS.filter((p) => products.includes(p.name));
-    const pool = selected.length ? selected : product ? [product] : PRODUCTS;
-    return Array.from(new Set(pool.flatMap((p) => p.colors)));
-  }, [products, product]);
-
-  const sizeOptions = useMemo(() => {
-    const selected = PRODUCTS.filter((p) => products.includes(p.name));
-    const pool = selected.length ? selected : product ? [product] : PRODUCTS;
-    return SIZES.filter((s) => pool.every((p) => p.sizes.includes(s)));
-  }, [products, product]);
+  // Persist progress so an accidental close never loses the answers.
+  useEffect(() => {
+    if (!open || !hydrated.current || done) return;
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+    } catch {
+      /* storage unavailable — progress simply isn't persisted */
+    }
+  }, [draft, open, done]);
 
   useEffect(() => {
-    if (size && !sizeOptions.includes(size)) setSize("");
-  }, [sizeOptions, size]);
+    scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }, [draft.step, done]);
 
+  const selectedProducts = useMemo(
+    () => PRODUCTS.filter((p) => draft.products.includes(p.name)),
+    [draft.products],
+  );
 
-  const toggle = (list: string[], value: string) =>
-    list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
+  const sizeOptions = useMemo(() => {
+    const pool = selectedProducts.length ? selectedProducts : PRODUCTS;
+    const extended = pool.every((p) => p.sizes.includes("XXL"));
+    return extended ? [...BASE_SIZES, "XXL"] : BASE_SIZES;
+  }, [selectedProducts]);
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    const next: Errors = {};
-    if (fullName.trim().length < 2) next["fullName"] = "Please enter your full name.";
-    if (!/^[6-9]\d{9}$/.test(mobile.trim()))
-      next["mobile"] = "Enter a valid 10-digit Indian mobile number.";
-    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()))
-      next["email"] = "Enter a valid email address.";
-    if (products.length === 0) next["products"] = "Select at least one piece.";
-    if (!terms) next["terms"] = "Please accept the terms to continue.";
-    setErrors(next);
-    if (Object.keys(next).length) return;
+  useEffect(() => {
+    if (draft.size && !sizeOptions.includes(draft.size)) set("size", "");
+  }, [sizeOptions, draft.size]);
 
+  const nameValid = draft.fullName.trim().length >= 2;
+  const mobileValid = isValidMobile(draft.mobile);
+  const emailValid = !draft.email.trim() || isValidEmail(draft.email);
+
+  const goTo = (step: number) => set("step", Math.min(TOTAL_STEPS, Math.max(1, step)));
+
+  async function handleReserve() {
+    if (!terms) {
+      setTermsError(true);
+      return;
+    }
     setLoading(true);
+    setFormError("");
     try {
       const result = await submit({
         data: {
-          fullName: fullName.trim(),
-          mobile: mobile.trim(),
-          email: email.trim(),
-          city: city.trim(),
-          products,
-          size,
-          color,
-          quantity,
+          fullName: draft.fullName.trim(),
+          mobile: draft.mobile.trim(),
+          email: draft.email.trim(),
+          city: draft.city.trim(),
+          products: draft.products,
+          size: draft.size,
+          color: draft.color,
+          quantity: 1,
           whatsappOptIn,
-          marketingConsent,
+          marketingConsent: whatsappOptIn,
           source: "landing_page",
         },
       });
+      try {
+        window.localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        /* ignore */
+      }
       setDone({ discountCode: result.discountCode });
     } catch {
-      setErrors({ form: "Something went wrong. Please try again in a moment." });
+      setFormError("Something went wrong. Please try again in a moment.");
     } finally {
       setLoading(false);
     }
@@ -106,219 +164,138 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] gap-0 overflow-y-auto rounded-none border-border bg-background p-0 sm:max-w-3xl sm:rounded-none [&>button:last-child]:z-20 [&>button:last-child]:bg-background/80 [&>button:last-child]:p-2">
-
-
+      <DialogContent
+        className="flex h-[100dvh] max-h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 bg-background p-0 top-0 left-0 sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[92vh] sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:border sm:border-border [&>button:last-child]:hidden"
+      >
         {done ? (
-          <div className="px-8 py-16 text-center sm:px-16">
-            <DialogTitle asChild>
-              <h2 className="sr-only">Registration confirmed</h2>
-            </DialogTitle>
-            <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-olive text-olive-foreground">
-              <Check className="size-5" strokeWidth={1.5} />
-            </div>
-            <p className="eyebrow mt-8">You're on the list</p>
-            <p className="mt-4 font-display text-4xl leading-tight sm:text-5xl">
-              Your 10% launch
-              <br />
-              discount is reserved.
-            </p>
-            <DialogDescription asChild>
-              <p className="mx-auto mt-6 max-w-md text-sm leading-relaxed text-muted-foreground">
-                Thank you, {fullName.split(" ")[0]}. Your interest is registered — no payment was
-                taken, and nothing is charged today.
-              </p>
-            </DialogDescription>
-
-            <div className="mx-auto mt-10 max-w-sm border border-border bg-muted/60 p-6">
-              <p className="eyebrow">Your reserved code</p>
-              <p className="mt-3 font-display text-3xl tracking-wide">{done.discountCode}</p>
-              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                Valid for 72 hours from launch, on your selected pieces. We'll send it again by
-                {whatsappOptIn ? " WhatsApp" : " message"} so you don't have to remember it.
-              </p>
-            </div>
-
-            <div className="mx-auto mt-10 max-w-md space-y-4 text-left">
-              <p className="eyebrow text-center">What happens next</p>
-              {[
-                "You'll get a confirmation message within a few minutes.",
-                "48 hours before launch, we send you early access — before the public.",
-                "On launch day, your code applies at checkout. Prepaid only, delivered pan-India.",
-              ].map((step, index) => (
-                <div key={step} className="flex gap-4 border-t border-border pt-4">
-                  <span className="font-display text-lg text-muted-foreground">0{index + 1}</span>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{step}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
-              <Button
-                asChild
-                className="h-12 rounded-none px-8 text-xs tracking-[0.2em] uppercase"
-              >
-                <a
-                  href="https://instagram.com/abcollection.co.in"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  Follow the launch
-                </a>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                className="h-12 rounded-none px-8 text-xs tracking-[0.2em] uppercase"
-              >
-                Keep browsing
-              </Button>
-            </div>
-          </div>
+          <SuccessScreen
+            firstName={draft.fullName.trim().split(" ")[0] ?? ""}
+            code={done.discountCode}
+            onClose={() => onOpenChange(false)}
+          />
         ) : (
-          <div className="grid md:grid-cols-[0.85fr_1.15fr]">
-            <aside className="hidden flex-col justify-between bg-muted/60 p-8 md:flex">
-              <div>
-                <p className="eyebrow">Registering interest in</p>
-                {product ? (
-                  <>
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      loading="lazy"
-                      width={1120}
-                      height={1408}
-                      className="mt-6 aspect-[4/5] w-full object-cover"
-                    />
-                    <h3 className="mt-6 text-2xl leading-snug">{product.name}</h3>
-                    <p className="mt-1 text-xs tracking-[0.16em] text-muted-foreground uppercase">
-                      {product.fabric}
-                    </p>
-                    <p className="mt-4 text-sm text-muted-foreground">{product.price}</p>
-                  </>
+          <>
+            <header className="shrink-0 border-b border-border bg-background/95 px-5 pt-4 pb-3 backdrop-blur">
+              <div className="flex items-center justify-between">
+                {draft.step > 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => goTo(draft.step - 1)}
+                    aria-label="Go back"
+                    className="-ml-2 flex size-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
+                  >
+                    <ArrowLeft className="size-5" strokeWidth={1.5} />
+                  </button>
                 ) : (
-                  <h3 className="mt-6 text-2xl leading-snug">The first collection</h3>
+                  <span className="size-10" />
                 )}
-              </div>
-              <div className="mt-10 border-t border-border pt-6">
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  No payment today. This reserves your{" "}
-                  <span className="text-foreground">10% launch discount</span> and your early access
-                  window.
+                <p className="text-[0.6rem] tracking-[0.22em] text-muted-foreground uppercase">
+                  Step {draft.step} of {TOTAL_STEPS}
                 </p>
-              </div>
-            </aside>
-
-            <form onSubmit={handleSubmit} className="p-8 sm:p-10">
-              <DialogTitle asChild>
-                <h2 className="font-display text-3xl leading-tight sm:text-4xl">
-                  Reserve your 10%
-                </h2>
-              </DialogTitle>
-              <DialogDescription asChild>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  Takes under a minute. We'll only contact you about the launch.
-                </p>
-              </DialogDescription>
-
-              <div className="mt-8 space-y-6">
-                <Field label="Full name" error={errors["fullName"]} htmlFor="fullName">
-                  <Input
-                    id="fullName"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    autoComplete="off"
-                    maxLength={100}
-                    placeholder="Abbas Badwahwala"
-                    className="h-11 rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0"
-                  />
-                </Field>
-
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <Field label="Mobile number" error={errors["mobile"]} htmlFor="mobile">
-                    <Input
-                      id="mobile"
-                      inputMode="numeric"
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      autoComplete="off"
-                      placeholder="9876543210"
-                      className="h-11 rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0"
-                    />
-                  </Field>
-                  <Field label="City" htmlFor="city" optional>
-                    <Input
-                      id="city"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      autoComplete="off"
-                      maxLength={80}
-                      placeholder="Indore"
-                      className="h-11 rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0"
-                    />
-                  </Field>
-                </div>
-
-                <Field
-                  label="Email"
-                  error={errors["email"]}
-                  htmlFor="email"
-                  hint="Recommended — your discount code is emailed as a backup."
-                  optional
+                <button
+                  type="button"
+                  onClick={() => onOpenChange(false)}
+                  aria-label="Close"
+                  className="-mr-2 flex size-10 items-center justify-center text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    autoComplete="off"
-                    maxLength={255}
-                    placeholder="you@email.com"
-                    className="h-11 rounded-none border-0 border-b border-input bg-transparent px-0 shadow-none focus-visible:border-foreground focus-visible:ring-0"
+                  <X className="size-5" strokeWidth={1.5} />
+                </button>
+              </div>
+              <div className="mt-3 flex gap-1.5" aria-hidden>
+                {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+                  <span
+                    key={i}
+                    className={`h-0.5 flex-1 transition-colors duration-300 ${
+                      i < draft.step ? "bg-foreground" : "bg-border"
+                    }`}
                   />
-                </Field>
+                ))}
+              </div>
+            </header>
 
-                <fieldset>
-                  <legend className="eyebrow">Interested pieces</legend>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto px-5 pt-8 pb-6">
+              {draft.step === 1 ? (
+                <StepShell
+                  title="Choose Your Favourite"
+                  subtitle="Reserve the products you're most interested in."
+                >
+                  <div className="mt-7 space-y-3">
                     {PRODUCTS.map((p) => {
-                      const active = products.includes(p.name);
+                      const active = draft.products.includes(p.name);
                       return (
                         <button
                           type="button"
                           key={p.id}
-                          onClick={() => setProducts((prev) => toggle(prev, p.name))}
                           aria-pressed={active}
-                          className={`border px-4 py-3 text-left text-sm transition-colors ${
+                          onClick={() =>
+                            set(
+                              "products",
+                              active
+                                ? draft.products.filter((n) => n !== p.name)
+                                : [...draft.products, p.name],
+                            )
+                          }
+                          className={`flex w-full items-center gap-4 border p-3 text-left transition-colors duration-200 ${
                             active
-                              ? "border-foreground bg-foreground text-background"
-                              : "border-input hover:border-foreground"
+                              ? "border-foreground bg-muted/60"
+                              : "border-border hover:border-foreground"
                           }`}
                         >
-                          {p.name}
+                          <img
+                            src={p.image}
+                            alt={p.name}
+                            loading="lazy"
+                            width={160}
+                            height={200}
+                            className="size-20 shrink-0 bg-muted object-cover object-top"
+                          />
+                          <span className="min-w-0 flex-1">
+                            <span className="flex items-start justify-between gap-3">
+                              <span className="text-base leading-snug">{p.name}</span>
+                              <span className="shrink-0 text-xs text-muted-foreground">
+                                {p.price}
+                              </span>
+                            </span>
+                            <span className="mt-1.5 flex flex-wrap gap-1.5">
+                              {highlights(p).map((h) => (
+                                <span
+                                  key={h}
+                                  className="border border-border px-2 py-0.5 text-[0.6rem] tracking-[0.12em] text-muted-foreground uppercase"
+                                >
+                                  {h}
+                                </span>
+                              ))}
+                            </span>
+                          </span>
+                          <span
+                            className={`flex size-6 shrink-0 items-center justify-center border transition-colors duration-200 ${
+                              active
+                                ? "border-foreground bg-foreground text-background"
+                                : "border-border"
+                            }`}
+                          >
+                            {active ? <Check className="size-3.5" strokeWidth={2} /> : null}
+                          </span>
                         </button>
                       );
                     })}
                   </div>
-                  {errors["products"] ? (
-                    <p className="mt-2 text-xs text-destructive">{errors["products"]}</p>
-                  ) : null}
-                </fieldset>
 
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <fieldset>
-                    <legend className="eyebrow">Preferred size</legend>
-                    <div className="mt-3 flex flex-wrap gap-2">
+                  <fieldset className="mt-10">
+                    <legend className="eyebrow">
+                      Preferred size <span className="normal-case opacity-60">(optional)</span>
+                    </legend>
+                    <div className="mt-3 grid grid-cols-4 gap-2">
                       {sizeOptions.map((s) => (
                         <button
                           type="button"
                           key={s}
-                          onClick={() => setSize(s === size ? "" : s)}
-                          aria-pressed={s === size}
-                          className={`size-10 border text-xs transition-colors ${
-                            s === size
+                          aria-pressed={s === draft.size}
+                          onClick={() => set("size", s === draft.size ? "" : s)}
+                          className={`h-12 border text-sm transition-colors duration-200 ${
+                            s === draft.size
                               ? "border-foreground bg-foreground text-background"
-                              : "border-input hover:border-foreground"
+                              : "border-border hover:border-foreground"
                           }`}
                         >
                           {s}
@@ -326,20 +303,87 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                       ))}
                     </div>
                   </fieldset>
+                </StepShell>
+              ) : null}
 
-                  <fieldset>
+              {draft.step === 2 ? (
+                <StepShell title="Reserve Your Launch Access" subtitle="You're almost there.">
+                  <div className="mt-8 space-y-7">
+                    <div>
+                      <Label htmlFor="fullName" className="eyebrow">
+                        Full name
+                      </Label>
+                      <Input
+                        id="fullName"
+                        name="name"
+                        autoComplete="name"
+                        enterKeyHint="next"
+                        maxLength={100}
+                        value={draft.fullName}
+                        onChange={(e) => set("fullName", e.target.value)}
+                        onBlur={() => setTouched((t) => ({ ...t, fullName: true }))}
+                        placeholder="Your name"
+                        className="mt-2 h-13 rounded-none border-0 border-b border-input bg-transparent px-0 text-base shadow-none focus-visible:border-foreground focus-visible:ring-0"
+                      />
+                      <p className="mt-2 min-h-4 text-xs text-destructive">
+                        {touched.fullName && !nameValid ? "Please enter your full name." : ""}
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="mobile" className="eyebrow">
+                        Mobile number
+                      </Label>
+                      <Input
+                        id="mobile"
+                        name="tel"
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel-national"
+                        enterKeyHint="done"
+                        value={draft.mobile}
+                        onChange={(e) => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        onBlur={() => setTouched((t) => ({ ...t, mobile: true }))}
+                        placeholder="10-digit mobile number"
+                        className="mt-2 h-13 rounded-none border-0 border-b border-input bg-transparent px-0 text-base shadow-none focus-visible:border-foreground focus-visible:ring-0"
+                      />
+                      <p className="mt-2 min-h-4 text-xs text-destructive">
+                        {touched.mobile && !mobileValid
+                          ? "Enter a valid 10-digit Indian mobile number."
+                          : ""}
+                      </p>
+                    </div>
+                  </div>
+
+                  <ul className="mt-8 space-y-3 border-t border-border pt-6">
+                    {["No payment today", "Takes less than 30 seconds", "No spam"].map((item) => (
+                      <li key={item} className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <Check className="size-4 shrink-0 text-olive" strokeWidth={2} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </StepShell>
+              ) : null}
+
+              {draft.step === 3 ? (
+                <StepShell
+                  title="Help Us Stock Better"
+                  subtitle="These answers help us prepare inventory. All optional."
+                >
+                  <fieldset className="mt-8">
                     <legend className="eyebrow">Preferred colour</legend>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {colorOptions.map((c) => (
+                    <div className="mt-3 grid grid-cols-3 gap-2">
+                      {COLOR_OPTIONS.map((c) => (
                         <button
                           type="button"
                           key={c}
-                          onClick={() => setColor(c === color ? "" : c)}
-                          aria-pressed={c === color}
-                          className={`border px-3 py-2 text-xs transition-colors ${
-                            c === color
+                          aria-pressed={c === draft.color}
+                          onClick={() => set("color", c === draft.color ? "" : c)}
+                          className={`h-12 border text-sm transition-colors duration-200 ${
+                            c === draft.color
                               ? "border-foreground bg-foreground text-background"
-                              : "border-input hover:border-foreground"
+                              : "border-border hover:border-foreground"
                           }`}
                         >
                           {c}
@@ -347,141 +391,286 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                       ))}
                     </div>
                   </fieldset>
-                </div>
 
-                <div>
-                  <span className="eyebrow">Quantity</span>
-                  <div className="mt-3 flex w-32 items-center justify-between border border-input">
-                    <button
-                      type="button"
-                      aria-label="Decrease quantity"
-                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      className="h-10 w-10 text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      −
-                    </button>
-                    <span className="text-sm">{quantity}</span>
-                    <button
-                      type="button"
-                      aria-label="Increase quantity"
-                      onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-                      className="h-10 w-10 text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      +
-                    </button>
+                  <div className="mt-8">
+                    <Label htmlFor="city" className="eyebrow">
+                      City
+                    </Label>
+                    <Input
+                      id="city"
+                      name="city"
+                      autoComplete="address-level2"
+                      maxLength={80}
+                      value={draft.city}
+                      onChange={(e) => set("city", e.target.value)}
+                      placeholder="Your city"
+                      className="mt-2 h-13 rounded-none border-0 border-b border-input bg-transparent px-0 text-base shadow-none focus-visible:border-foreground focus-visible:ring-0"
+                    />
                   </div>
-                </div>
 
-                <div className="space-y-3 border-t border-border pt-6">
-                  <Consent
-                    id="whatsapp"
-                    checked={whatsappOptIn}
-                    onChange={setWhatsappOptIn}
-                    label="Send my launch code and updates on WhatsApp"
-                    icon
-                  />
-                  <Consent
-                    id="marketing"
-                    checked={marketingConsent}
-                    onChange={setMarketingConsent}
-                    label="Email me new drops and restocks occasionally"
-                  />
-                  <Consent
-                    id="terms"
-                    checked={terms}
-                    onChange={setTerms}
-                    label="I accept the Terms and Privacy Policy"
-                    error={errors["terms"]}
-                  />
-                </div>
+                  <div className="mt-7">
+                    <Label htmlFor="email" className="eyebrow">
+                      Email
+                    </Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      maxLength={255}
+                      value={draft.email}
+                      onChange={(e) => set("email", e.target.value)}
+                      onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+                      placeholder="you@email.com"
+                      className="mt-2 h-13 rounded-none border-0 border-b border-input bg-transparent px-0 text-base shadow-none focus-visible:border-foreground focus-visible:ring-0"
+                    />
+                    <p
+                      className={`mt-2 min-h-4 text-xs ${
+                        touched.email && !emailValid ? "text-destructive" : "text-muted-foreground"
+                      }`}
+                    >
+                      {touched.email && !emailValid
+                        ? "Enter a valid email address."
+                        : "We'll email your launch code as a backup."}
+                    </p>
+                  </div>
+                </StepShell>
+              ) : null}
 
-                {errors["form"] ? (
-                  <p className="text-sm text-destructive">{errors["form"]}</p>
-                ) : null}
+              {draft.step === 4 ? (
+                <StepShell
+                  title="Confirm Your Reservation"
+                  subtitle="One tap and your launch access is locked in."
+                >
+                  <div className="mt-7 border border-border bg-muted/50 p-5">
+                    <SummaryRow
+                      label="Products"
+                      value={draft.products.length ? draft.products.join(", ") : "—"}
+                    />
+                    <SummaryRow label="Preferred size" value={draft.size || "Not specified"} />
+                    <SummaryRow label="Preferred colour" value={draft.color || "Not specified"} />
+                    <SummaryRow label="Full name" value={draft.fullName.trim() || "—"} />
+                    <SummaryRow label="Mobile number" value={draft.mobile || "—"} />
+                  </div>
 
+                  <ul className="mt-7 space-y-3">
+                    {[
+                      "10% Launch Discount Reserved",
+                      "Early Access Before Public Launch",
+                      "No Payment Today",
+                      "Priority Launch Notification",
+                    ].map((benefit) => (
+                      <li key={benefit} className="flex items-center gap-3 text-sm">
+                        <Check className="size-4 shrink-0 text-olive" strokeWidth={2} />
+                        {benefit}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-8 space-y-4 border-t border-border pt-6">
+                    <label htmlFor="whatsapp" className="flex cursor-pointer items-start gap-3 text-sm">
+                      <Checkbox
+                        id="whatsapp"
+                        checked={whatsappOptIn}
+                        onCheckedChange={(v) => setWhatsappOptIn(v === true)}
+                        className="mt-0.5 rounded-none"
+                      />
+                      <span className="leading-relaxed text-muted-foreground">
+                        Send me launch updates on WhatsApp
+                      </span>
+                    </label>
+                    <div>
+                      <label htmlFor="terms" className="flex cursor-pointer items-start gap-3 text-sm">
+                        <Checkbox
+                          id="terms"
+                          checked={terms}
+                          onCheckedChange={(v) => {
+                            setTerms(v === true);
+                            if (v === true) setTermsError(false);
+                          }}
+                          className="mt-0.5 rounded-none"
+                        />
+                        <span className="leading-relaxed text-muted-foreground">
+                          I agree to the Terms &amp; Privacy Policy
+                        </span>
+                      </label>
+                      {termsError ? (
+                        <p className="mt-1 ml-7 text-xs text-destructive">
+                          Please accept the terms to continue.
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  {formError ? (
+                    <p className="mt-4 text-sm text-destructive">{formError}</p>
+                  ) : null}
+                </StepShell>
+              ) : null}
+            </div>
+
+            <footer className="shrink-0 border-t border-border bg-background px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+              {draft.step === 1 ? (
                 <Button
-                  type="submit"
+                  onClick={() => goTo(2)}
+                  disabled={draft.products.length === 0}
+                  className="h-14 w-full rounded-none text-xs tracking-[0.2em] uppercase"
+                >
+                  Continue
+                </Button>
+              ) : null}
+              {draft.step === 2 ? (
+                <Button
+                  onClick={() => goTo(3)}
+                  disabled={!nameValid || !mobileValid}
+                  className="h-14 w-full rounded-none text-xs tracking-[0.2em] uppercase"
+                >
+                  Continue
+                </Button>
+              ) : null}
+              {draft.step === 3 ? (
+                <div className="flex flex-col gap-2">
+                  <Button
+                    onClick={() => goTo(4)}
+                    disabled={!emailValid}
+                    className="h-14 w-full rounded-none text-xs tracking-[0.2em] uppercase"
+                  >
+                    Continue
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      set("email", "");
+                      set("city", "");
+                      goTo(4);
+                    }}
+                    className="h-11 w-full rounded-none text-xs tracking-[0.2em] text-muted-foreground uppercase"
+                  >
+                    Skip
+                  </Button>
+                </div>
+              ) : null}
+              {draft.step === 4 ? (
+                <Button
+                  onClick={handleReserve}
                   disabled={loading}
-                  className="h-13 w-full rounded-none py-4 text-xs tracking-[0.2em] uppercase"
+                  className="h-14 w-full rounded-none text-xs tracking-[0.2em] uppercase"
                 >
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 size-4 animate-spin" /> Reserving
                     </>
                   ) : (
-                    "Reserve my 10% discount"
+                    "Reserve My Launch Access"
                   )}
                 </Button>
-                <p className="text-center text-xs text-muted-foreground">
-                  No payment today · Registration takes 40 seconds · Unsubscribe anytime
-                </p>
-              </div>
-            </form>
-          </div>
+              ) : null}
+              <p className="mt-3 text-center text-[0.65rem] tracking-[0.12em] text-muted-foreground uppercase">
+                No payment today
+              </p>
+            </footer>
+          </>
         )}
       </DialogContent>
     </Dialog>
   );
 }
 
-function Field({
-  label,
-  htmlFor,
-  error,
-  hint,
-  optional,
+function highlights(product: Product) {
+  const [weight] = product.fabric.split(" ");
+  const fit = product.name.toLowerCase().includes("regular") ? "Regular Fit" : "Oversized Fit";
+  const material = product.fabric.toLowerCase().includes("terry")
+    ? "French Terry"
+    : "Premium Cotton";
+  return [weight?.includes("GSM") ? product.fabric.slice(0, 7) : weight, fit, material].filter(
+    Boolean,
+  ) as string[];
+}
+
+function StepShell({
+  title,
+  subtitle,
   children,
 }: {
-  label: string;
-  htmlFor: string;
-  error?: string | undefined;
-  hint?: string;
-  optional?: boolean;
+  title: string;
+  subtitle: string;
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <Label htmlFor={htmlFor} className="eyebrow">
-        {label}
-        {optional ? <span className="ml-2 normal-case opacity-60">optional</span> : null}
-      </Label>
-      <div className="mt-2">{children}</div>
-      {hint && !error ? <p className="mt-2 text-xs text-muted-foreground">{hint}</p> : null}
-      {error ? <p className="mt-2 text-xs text-destructive">{error}</p> : null}
+    <div className="animate-fade-in">
+      <DialogTitle asChild>
+        <h2 className="font-display text-3xl leading-tight">{title}</h2>
+      </DialogTitle>
+      <DialogDescription asChild>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{subtitle}</p>
+      </DialogDescription>
+      {children}
     </div>
   );
 }
 
-function Consent({
-  id,
-  checked,
-  onChange,
-  label,
-  icon,
-  error,
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-6 border-b border-border py-3 last:border-b-0 last:pb-0 first:pt-0">
+      <span className="shrink-0 text-[0.6rem] tracking-[0.18em] text-muted-foreground uppercase">
+        {label}
+      </span>
+      <span className="text-right text-sm leading-snug">{value}</span>
+    </div>
+  );
+}
+
+function SuccessScreen({
+  firstName,
+  code,
+  onClose,
 }: {
-  id: string;
-  checked: boolean;
-  onChange: (value: boolean) => void;
-  label: string;
-  icon?: boolean;
-  error?: string | undefined;
+  firstName: string;
+  code: string;
+  onClose: () => void;
 }) {
   return (
-    <div>
-      <label htmlFor={id} className="flex cursor-pointer items-start gap-3 text-sm">
-        <Checkbox
-          id={id}
-          checked={checked}
-          onCheckedChange={(value) => onChange(value === true)}
-          className="mt-0.5 rounded-none"
-        />
-        <span className="leading-relaxed text-muted-foreground">
-          {icon ? <MessageCircle className="mr-1 inline size-3.5 align-[-2px]" /> : null}
-          {label}
-        </span>
-      </label>
-      {error ? <p className="mt-1 ml-7 text-xs text-destructive">{error}</p> : null}
+    <div className="flex h-full flex-col overflow-y-auto px-6 py-12 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center">
+        <div className="animate-scale-in mx-auto flex size-16 items-center justify-center rounded-full bg-olive text-olive-foreground">
+          <Check className="size-7" strokeWidth={1.5} />
+        </div>
+        <DialogTitle asChild>
+          <h2 className="animate-fade-in mt-8 font-display text-5xl leading-tight">You're In.</h2>
+        </DialogTitle>
+        <DialogDescription asChild>
+          <p className="animate-fade-in mx-auto mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            {firstName ? `${firstName}, your` : "Your"} launch access has been successfully
+            reserved. Your exclusive 10% launch discount is secured. We'll notify you before
+            everyone else when AB Collection launches.
+          </p>
+        </DialogDescription>
+
+        <div className="animate-fade-in mx-auto mt-8 w-full max-w-xs border border-border bg-muted/60 p-5">
+          <p className="eyebrow">Your reserved code</p>
+          <p className="mt-2 font-display text-3xl tracking-wide">{code}</p>
+        </div>
+      </div>
+
+      <div className="mt-10 flex flex-col gap-3">
+        <Button asChild className="h-14 w-full rounded-none text-xs tracking-[0.2em] uppercase">
+          <a
+            href="https://instagram.com/abcollection.co.in"
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            Follow AB Collection
+          </a>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={onClose}
+          className="h-14 w-full rounded-none border-foreground text-xs tracking-[0.2em] uppercase"
+        >
+          Return to Website
+        </Button>
+      </div>
     </div>
   );
 }
