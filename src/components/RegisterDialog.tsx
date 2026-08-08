@@ -588,33 +588,20 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
               {draft.step === 2 ? (
                 <Button
                   onClick={() => goTo(3)}
-                  disabled={!nameValid || !mobileValid}
+                  disabled={!variantsComplete}
+                  className="h-14 w-full rounded-none text-xs tracking-[0.2em] uppercase"
+                >
+                  {variantsComplete ? "Continue" : "Select size & colour"}
+                </Button>
+              ) : null}
+              {draft.step === 3 ? (
+                <Button
+                  onClick={() => goTo(4)}
+                  disabled={!nameValid || !mobileValid || !emailValid}
                   className="h-14 w-full rounded-none text-xs tracking-[0.2em] uppercase"
                 >
                   Continue
                 </Button>
-              ) : null}
-              {draft.step === 3 ? (
-                <div className="flex flex-col gap-2">
-                  <Button
-                    onClick={() => goTo(4)}
-                    disabled={!emailValid}
-                    className="h-14 w-full rounded-none text-xs tracking-[0.2em] uppercase"
-                  >
-                    Continue
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      set("email", "");
-                      set("city", "");
-                      goTo(4);
-                    }}
-                    className="h-11 w-full rounded-none text-xs tracking-[0.2em] text-muted-foreground uppercase"
-                  >
-                    Skip
-                  </Button>
-                </div>
               ) : null}
               {draft.step === 4 ? (
                 <Button
