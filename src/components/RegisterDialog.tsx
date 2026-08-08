@@ -401,29 +401,62 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
 
               {draft.step === 3 ? (
                 <StepShell
-                  title="Help Us Stock Better"
-                  subtitle="These answers help us prepare inventory. All optional."
+                  title="Reserve Your Launch Access"
+                  subtitle="Just your name and number. Takes less than 30 seconds."
                 >
-                  <fieldset className="mt-8">
-                    <legend className="eyebrow">Preferred colour</legend>
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      {COLOR_OPTIONS.map((c) => (
-                        <button
-                          type="button"
-                          key={c}
-                          aria-pressed={c === draft.color}
-                          onClick={() => set("color", c === draft.color ? "" : c)}
-                          className={`h-12 border text-sm transition-colors duration-200 ${
-                            c === draft.color
-                              ? "border-foreground bg-foreground text-background"
-                              : "border-border hover:border-foreground"
-                          }`}
-                        >
-                          {c}
-                        </button>
-                      ))}
+                  <div className="mt-8 space-y-7">
+                    <div>
+                      <Label htmlFor="fullName" className="eyebrow">
+                        Full name
+                      </Label>
+                      <Input
+                        id="fullName"
+                        name="name"
+                        autoComplete="name"
+                        enterKeyHint="next"
+                        maxLength={100}
+                        value={draft.fullName}
+                        onChange={(e) => set("fullName", e.target.value)}
+                        onBlur={() => setTouched((t) => ({ ...t, fullName: true }))}
+                        placeholder="Your name"
+                        className="mt-2 h-13 rounded-none border-0 border-b border-input bg-transparent px-0 text-base shadow-none focus-visible:border-foreground focus-visible:ring-0"
+                      />
+                      <p className="mt-2 min-h-4 text-xs text-destructive">
+                        {touched.fullName && !nameValid ? "Please enter your full name." : ""}
+                      </p>
                     </div>
-                  </fieldset>
+
+                    <div>
+                      <Label htmlFor="mobile" className="eyebrow">
+                        Mobile number
+                      </Label>
+                      <Input
+                        id="mobile"
+                        name="tel"
+                        type="tel"
+                        inputMode="numeric"
+                        autoComplete="tel-national"
+                        enterKeyHint="done"
+                        value={draft.mobile}
+                        onChange={(e) =>
+                          set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))
+                        }
+                        onBlur={() => setTouched((t) => ({ ...t, mobile: true }))}
+                        placeholder="10-digit mobile number"
+                        className="mt-2 h-13 rounded-none border-0 border-b border-input bg-transparent px-0 text-base shadow-none focus-visible:border-foreground focus-visible:ring-0"
+                      />
+                      <p className="mt-2 min-h-4 text-xs text-destructive">
+                        {touched.mobile && !mobileValid
+                          ? "Enter a valid 10-digit Indian mobile number."
+                          : ""}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="mt-9 eyebrow">
+                    Optional <span className="normal-case opacity-60">— helps us plan delivery</span>
+                  </p>
+
 
                   <div className="mt-8">
                     <Label htmlFor="city" className="eyebrow">
@@ -477,15 +510,30 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                   subtitle="One tap and your launch access is locked in."
                 >
                   <div className="mt-7 border border-border bg-muted/50 p-5">
-                    <SummaryRow
-                      label="Products"
-                      value={draft.products.length ? draft.products.join(", ") : "—"}
-                    />
-                    <SummaryRow label="Preferred size" value={draft.size || "Not specified"} />
-                    <SummaryRow label="Preferred colour" value={draft.color || "Not specified"} />
+                    {selectedProducts.map((p) => (
+                      <SummaryRow
+                        key={p.id}
+                        label={p.name}
+                        value={`${draft.variants[p.name]?.size ?? "—"} · ${
+                          draft.variants[p.name]?.color ?? "—"
+                        }`}
+                      />
+                    ))}
                     <SummaryRow label="Full name" value={draft.fullName.trim() || "—"} />
                     <SummaryRow label="Mobile number" value={draft.mobile || "—"} />
+                    {draft.city.trim() ? (
+                      <SummaryRow label="City" value={draft.city.trim()} />
+                    ) : null}
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => goTo(2)}
+                    className="mt-3 text-[0.65rem] tracking-[0.18em] text-muted-foreground uppercase underline underline-offset-4 transition-colors hover:text-foreground"
+                  >
+                    Edit selection
+                  </button>
+
 
                   <ul className="mt-7 space-y-3">
                     {[
