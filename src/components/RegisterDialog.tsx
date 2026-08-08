@@ -314,90 +314,74 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                     })}
                   </div>
 
-                  <fieldset className="mt-10">
-                    <legend className="eyebrow">
-                      Preferred size <span className="normal-case opacity-60">(optional)</span>
-                    </legend>
-                    <div className="mt-3 grid grid-cols-4 gap-2">
-                      {sizeOptions.map((s) => (
-                        <button
-                          type="button"
-                          key={s}
-                          aria-pressed={s === draft.size}
-                          onClick={() => set("size", s === draft.size ? "" : s)}
-                          className={`h-12 border text-sm transition-colors duration-200 ${
-                            s === draft.size
-                              ? "border-foreground bg-foreground text-background"
-                              : "border-border hover:border-foreground"
-                          }`}
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                  </fieldset>
                 </StepShell>
               ) : null}
 
               {draft.step === 2 ? (
-                <StepShell title="Reserve Your Launch Access" subtitle="You're almost there.">
-                  <div className="mt-8 space-y-7">
-                    <div>
-                      <Label htmlFor="fullName" className="eyebrow">
-                        Full name
-                      </Label>
-                      <Input
-                        id="fullName"
-                        name="name"
-                        autoComplete="name"
-                        enterKeyHint="next"
-                        maxLength={100}
-                        value={draft.fullName}
-                        onChange={(e) => set("fullName", e.target.value)}
-                        onBlur={() => setTouched((t) => ({ ...t, fullName: true }))}
-                        placeholder="Your name"
-                        className="mt-2 h-13 rounded-none border-0 border-b border-input bg-transparent px-0 text-base shadow-none focus-visible:border-foreground focus-visible:ring-0"
-                      />
-                      <p className="mt-2 min-h-4 text-xs text-destructive">
-                        {touched.fullName && !nameValid ? "Please enter your full name." : ""}
-                      </p>
-                    </div>
+                <StepShell
+                  title="Pick Your Size & Colour"
+                  subtitle="Choose a preference for each product you reserved."
+                >
+                  <div className="mt-8 space-y-10">
+                    {selectedProducts.map((p) => {
+                      const v = draft.variants[p.name] ?? { size: "", color: "" };
+                      return (
+                        <section key={p.id}>
+                          <div className="flex items-start justify-between gap-3 border-b border-border pb-3">
+                            <h3 className="font-display text-xl leading-snug">{p.name}</h3>
+                            <span className="mt-1 shrink-0 text-[0.6rem] tracking-[0.14em] text-muted-foreground uppercase">
+                              {p.fabric}
+                            </span>
+                          </div>
 
-                    <div>
-                      <Label htmlFor="mobile" className="eyebrow">
-                        Mobile number
-                      </Label>
-                      <Input
-                        id="mobile"
-                        name="tel"
-                        type="tel"
-                        inputMode="numeric"
-                        autoComplete="tel-national"
-                        enterKeyHint="done"
-                        value={draft.mobile}
-                        onChange={(e) => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
-                        onBlur={() => setTouched((t) => ({ ...t, mobile: true }))}
-                        placeholder="10-digit mobile number"
-                        className="mt-2 h-13 rounded-none border-0 border-b border-input bg-transparent px-0 text-base shadow-none focus-visible:border-foreground focus-visible:ring-0"
-                      />
-                      <p className="mt-2 min-h-4 text-xs text-destructive">
-                        {touched.mobile && !mobileValid
-                          ? "Enter a valid 10-digit Indian mobile number."
-                          : ""}
-                      </p>
-                    </div>
+                          <fieldset className="mt-5">
+                            <legend className="eyebrow">Preferred size</legend>
+                            <div className="mt-3 grid grid-cols-5 gap-2">
+                              {p.sizes.map((s) => (
+                                <button
+                                  type="button"
+                                  key={s}
+                                  aria-pressed={s === v.size}
+                                  onClick={() => setVariant(p.name, "size", s)}
+                                  className={`h-12 border text-sm transition-colors duration-200 ${
+                                    s === v.size
+                                      ? "border-foreground bg-foreground text-background"
+                                      : "border-border hover:border-foreground"
+                                  }`}
+                                >
+                                  {s}
+                                </button>
+                              ))}
+                            </div>
+                          </fieldset>
+
+                          <fieldset className="mt-6">
+                            <legend className="eyebrow">Preferred colour</legend>
+                            <div className="mt-3 grid grid-cols-2 gap-2">
+                              {p.colors.map((c) => (
+                                <button
+                                  type="button"
+                                  key={c}
+                                  aria-pressed={c === v.color}
+                                  onClick={() => setVariant(p.name, "color", c)}
+                                  className={`h-12 border px-2 text-sm transition-colors duration-200 ${
+                                    c === v.color
+                                      ? "border-foreground bg-foreground text-background"
+                                      : "border-border hover:border-foreground"
+                                  }`}
+                                >
+                                  {c}
+                                </button>
+                              ))}
+                            </div>
+                          </fieldset>
+                        </section>
+                      );
+                    })}
                   </div>
-
-                  <ul className="mt-8 space-y-3 border-t border-border pt-6">
-                    {["No payment today", "Takes less than 30 seconds", "No spam"].map((item) => (
-                      <li key={item} className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <Check className="size-4 shrink-0 text-olive" strokeWidth={2} />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
                 </StepShell>
               ) : null}
+
 
               {draft.step === 3 ? (
                 <StepShell
