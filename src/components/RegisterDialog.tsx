@@ -18,16 +18,15 @@ type Props = {
 
 const STORAGE_KEY = "ab-reservation-draft";
 const TOTAL_STEPS = 4;
-const BASE_SIZES = ["S", "M", "L", "XL"];
-const COLOR_OPTIONS = ["Black", "White", "Beige", "Grey", "Olive", "Other"];
+
+type Variant = { size: string; color: string };
 
 type Draft = {
   step: number;
   products: string[];
-  size: string;
+  variants: Record<string, Variant>;
   fullName: string;
   mobile: string;
-  color: string;
   city: string;
   email: string;
 };
@@ -35,10 +34,9 @@ type Draft = {
 const EMPTY: Draft = {
   step: 1,
   products: [],
-  size: "",
+  variants: {},
   fullName: "",
   mobile: "",
-  color: "",
   city: "",
   email: "",
 };
@@ -110,15 +108,45 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
     [draft.products],
   );
 
-  const sizeOptions = useMemo(() => {
-    const pool = selectedProducts.length ? selectedProducts : PRODUCTS;
-    const extended = pool.every((p) => p.sizes.includes("XXL"));
-    return extended ? [...BASE_SIZES, "XXL"] : BASE_SIZES;
-  }, [selectedProducts]);
-
+  // Drop variant state for deselected products and clear values that are not
+  // available for the product they belong to.
   useEffect(() => {
-    if (draft.size && !sizeOptions.includes(draft.size)) set("size", "");
-  }, [sizeOptions, draft.size]);
+    setDraft((prev) => {
+      const next: Record<string, Variant> = {};
+      let changed = false;
+      for (const p of PRODUCTS) {
+        if (!prev.products.includes(p.name)) {
+          if (prev.variants[p.name]) changed = true;
+          continue;
+        }
+        const current = prev.variants[p.name] ?? { size: "", color: "" };
+        const cleaned: Variant = {
+          size: p.sizes.includes(current.size) ? current.size : "",
+          color: p.colors.includes(current.color) ? current.color : "",
+        };
+        if (cleaned.size !== current.size || cleaned.color !== current.color) changed = true;
+        if (!prev.variants[p.name]) changed = true;
+        next[p.name] = cleaned;
+      }
+      return changed ? { ...prev, variants: next } : prev;
+    });
+  }, [draft.products]);
+
+  const setVariant = (name: string, key: keyof Variant, value: string) =>
+    setDraft((prev) => ({
+      ...prev,
+      variants: {
+        ...prev.variants,
+        [name]: { size: "", color: "", ...prev.variants[name], [key]: value },
+      },
+    }));
+
+  const variantsComplete =
+    selectedProducts.length > 0 &&
+    selectedProducts.every((p) => {
+      const v = draft.variants[p.name];
+      return !!v && p.sizes.includes(v.size) && p.colors.includes(v.color);
+    });
 
   const nameValid = draft.fullName.trim().length >= 2;
   const mobileValid = isValidMobile(draft.mobile);
@@ -134,15 +162,20 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
     setLoading(true);
     setFormError("");
     try {
+      const selection = selectedProducts.map((p) => ({
+        productName: p.name,
+        size: draft.variants[p.name]?.size ?? "",
+        colour: draft.variants[p.name]?.color ?? "",
+      }));
       const result = await submit({
         data: {
           fullName: draft.fullName.trim(),
           mobile: draft.mobile.trim(),
           email: draft.email.trim(),
           city: draft.city.trim(),
-          products: draft.products,
-          size: draft.size,
-          color: draft.color,
+          products: selection.map((s) => `${s.productName} (${s.size} · ${s.colour})`),
+          size: selection.length === 1 ? selection[0]!.size : "",
+          color: selection.length === 1 ? selection[0]!.colour : "",
           quantity: 1,
           whatsappOptIn,
           marketingConsent: whatsappOptIn,
@@ -281,33 +314,80 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                     })}
                   </div>
 
-                  <fieldset className="mt-10">
-                    <legend className="eyebrow">
-                      Preferred size <span className="normal-case opacity-60">(optional)</span>
-                    </legend>
-                    <div className="mt-3 grid grid-cols-4 gap-2">
-                      {sizeOptions.map((s) => (
-                        <button
-                          type="button"
-                          key={s}
-                          aria-pressed={s === draft.size}
-                          onClick={() => set("size", s === draft.size ? "" : s)}
-                          className={`h-12 border text-sm transition-colors duration-200 ${
-                            s === draft.size
-                              ? "border-foreground bg-foreground text-background"
-                              : "border-border hover:border-foreground"
-                          }`}
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                  </fieldset>
                 </StepShell>
               ) : null}
 
               {draft.step === 2 ? (
-                <StepShell title="Reserve Your Launch Access" subtitle="You're almost there.">
+                <StepShell
+                  title="Pick Your Size & Colour"
+                  subtitle="Choose a preference for each product you reserved."
+                >
+                  <div className="mt-8 space-y-10">
+                    {selectedProducts.map((p) => {
+                      const v = draft.variants[p.name] ?? { size: "", color: "" };
+                      return (
+                        <section key={p.id}>
+                          <div className="flex items-start justify-between gap-3 border-b border-border pb-3">
+                            <h3 className="font-display text-xl leading-snug">{p.name}</h3>
+                            <span className="mt-1 shrink-0 text-[0.6rem] tracking-[0.14em] text-muted-foreground uppercase">
+                              {p.fabric}
+                            </span>
+                          </div>
+
+                          <fieldset className="mt-5">
+                            <legend className="eyebrow">Preferred size</legend>
+                            <div className="mt-3 grid grid-cols-5 gap-2">
+                              {p.sizes.map((s) => (
+                                <button
+                                  type="button"
+                                  key={s}
+                                  aria-pressed={s === v.size}
+                                  onClick={() => setVariant(p.name, "size", s)}
+                                  className={`h-12 border text-sm transition-colors duration-200 ${
+                                    s === v.size
+                                      ? "border-foreground bg-foreground text-background"
+                                      : "border-border hover:border-foreground"
+                                  }`}
+                                >
+                                  {s}
+                                </button>
+                              ))}
+                            </div>
+                          </fieldset>
+
+                          <fieldset className="mt-6">
+                            <legend className="eyebrow">Preferred colour</legend>
+                            <div className="mt-3 grid grid-cols-2 gap-2">
+                              {p.colors.map((c) => (
+                                <button
+                                  type="button"
+                                  key={c}
+                                  aria-pressed={c === v.color}
+                                  onClick={() => setVariant(p.name, "color", c)}
+                                  className={`h-12 border px-2 text-sm transition-colors duration-200 ${
+                                    c === v.color
+                                      ? "border-foreground bg-foreground text-background"
+                                      : "border-border hover:border-foreground"
+                                  }`}
+                                >
+                                  {c}
+                                </button>
+                              ))}
+                            </div>
+                          </fieldset>
+                        </section>
+                      );
+                    })}
+                  </div>
+                </StepShell>
+              ) : null}
+
+
+              {draft.step === 3 ? (
+                <StepShell
+                  title="Reserve Your Launch Access"
+                  subtitle="Just your name and number. Takes less than 30 seconds."
+                >
                   <div className="mt-8 space-y-7">
                     <div>
                       <Label htmlFor="fullName" className="eyebrow">
@@ -342,7 +422,9 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                         autoComplete="tel-national"
                         enterKeyHint="done"
                         value={draft.mobile}
-                        onChange={(e) => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        onChange={(e) =>
+                          set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))
+                        }
                         onBlur={() => setTouched((t) => ({ ...t, mobile: true }))}
                         placeholder="10-digit mobile number"
                         className="mt-2 h-13 rounded-none border-0 border-b border-input bg-transparent px-0 text-base shadow-none focus-visible:border-foreground focus-visible:ring-0"
@@ -355,42 +437,10 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                     </div>
                   </div>
 
-                  <ul className="mt-8 space-y-3 border-t border-border pt-6">
-                    {["No payment today", "Takes less than 30 seconds", "No spam"].map((item) => (
-                      <li key={item} className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <Check className="size-4 shrink-0 text-olive" strokeWidth={2} />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </StepShell>
-              ) : null}
+                  <p className="mt-9 eyebrow">
+                    Optional <span className="normal-case opacity-60">— helps us plan delivery</span>
+                  </p>
 
-              {draft.step === 3 ? (
-                <StepShell
-                  title="Help Us Stock Better"
-                  subtitle="These answers help us prepare inventory. All optional."
-                >
-                  <fieldset className="mt-8">
-                    <legend className="eyebrow">Preferred colour</legend>
-                    <div className="mt-3 grid grid-cols-3 gap-2">
-                      {COLOR_OPTIONS.map((c) => (
-                        <button
-                          type="button"
-                          key={c}
-                          aria-pressed={c === draft.color}
-                          onClick={() => set("color", c === draft.color ? "" : c)}
-                          className={`h-12 border text-sm transition-colors duration-200 ${
-                            c === draft.color
-                              ? "border-foreground bg-foreground text-background"
-                              : "border-border hover:border-foreground"
-                          }`}
-                        >
-                          {c}
-                        </button>
-                      ))}
-                    </div>
-                  </fieldset>
 
                   <div className="mt-8">
                     <Label htmlFor="city" className="eyebrow">
@@ -444,15 +494,30 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                   subtitle="One tap and your launch access is locked in."
                 >
                   <div className="mt-7 border border-border bg-muted/50 p-5">
-                    <SummaryRow
-                      label="Products"
-                      value={draft.products.length ? draft.products.join(", ") : "—"}
-                    />
-                    <SummaryRow label="Preferred size" value={draft.size || "Not specified"} />
-                    <SummaryRow label="Preferred colour" value={draft.color || "Not specified"} />
+                    {selectedProducts.map((p) => (
+                      <SummaryRow
+                        key={p.id}
+                        label={p.name}
+                        value={`${draft.variants[p.name]?.size ?? "—"} · ${
+                          draft.variants[p.name]?.color ?? "—"
+                        }`}
+                      />
+                    ))}
                     <SummaryRow label="Full name" value={draft.fullName.trim() || "—"} />
                     <SummaryRow label="Mobile number" value={draft.mobile || "—"} />
+                    {draft.city.trim() ? (
+                      <SummaryRow label="City" value={draft.city.trim()} />
+                    ) : null}
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => goTo(2)}
+                    className="mt-3 text-[0.65rem] tracking-[0.18em] text-muted-foreground uppercase underline underline-offset-4 transition-colors hover:text-foreground"
+                  >
+                    Edit selection
+                  </button>
+
 
                   <ul className="mt-7 space-y-3">
                     {[
@@ -523,33 +588,20 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
               {draft.step === 2 ? (
                 <Button
                   onClick={() => goTo(3)}
-                  disabled={!nameValid || !mobileValid}
+                  disabled={!variantsComplete}
+                  className="h-14 w-full rounded-none text-xs tracking-[0.2em] uppercase"
+                >
+                  {variantsComplete ? "Continue" : "Select size & colour"}
+                </Button>
+              ) : null}
+              {draft.step === 3 ? (
+                <Button
+                  onClick={() => goTo(4)}
+                  disabled={!nameValid || !mobileValid || !emailValid}
                   className="h-14 w-full rounded-none text-xs tracking-[0.2em] uppercase"
                 >
                   Continue
                 </Button>
-              ) : null}
-              {draft.step === 3 ? (
-                <div className="flex flex-col gap-2">
-                  <Button
-                    onClick={() => goTo(4)}
-                    disabled={!emailValid}
-                    className="h-14 w-full rounded-none text-xs tracking-[0.2em] uppercase"
-                  >
-                    Continue
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      set("email", "");
-                      set("city", "");
-                      goTo(4);
-                    }}
-                    className="h-11 w-full rounded-none text-xs tracking-[0.2em] text-muted-foreground uppercase"
-                  >
-                    Skip
-                  </Button>
-                </div>
               ) : null}
               {draft.step === 4 ? (
                 <Button

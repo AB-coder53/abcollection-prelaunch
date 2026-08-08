@@ -68,7 +68,7 @@ export const PRODUCTS: Product[] = [
     description:
       "Heavyweight combed cotton with a boxy, intentional fall. Substantial enough to stand on its own, soft enough to live in all day.",
     details: ["Bio-washed combed cotton", "Ribbed collar, shoulder taped", "Pre-shrunk, colour-locked"],
-    colors: ["Lavender", "Coffee-brown", "Maroon"],
+    colors: ["Lavender", "Coffee Brown", "Maroon"],
     sizes: SIZES,
     price: "₹799/-",
   },
@@ -82,7 +82,7 @@ export const PRODUCTS: Product[] = [
     description:
       "A clean, true-to-size cut for work, travel and everything between. Tailored through the body without ever feeling tight.",
     details: ["240 GSM single jersey", "Straight hem, no roll", "Holds shape past 40 washes"],
-    colors: ["Black", "White", "Coffee-brown"],
+    colors: ["Black", "White", "Coffee Brown"],
     sizes: SIZES,
     price: "₹699",
   },
@@ -96,7 +96,7 @@ export const PRODUCTS: Product[] = [
     description:
       "Loopback French terry with a quiet texture and a heavier hand. Our most comfortable piece, built for the whole day.",
     details: ["260 GSM loopback terry", "Dropped shoulder, relaxed body", "Brushed interior"],
-    colors: ["Black", "White", "Biege"],
+    colors: ["Beige", "Black", "White"],
     sizes: SIZES_S_XL,
     price: "₹949/-",
   },
@@ -124,7 +124,7 @@ export const PRODUCTS: Product[] = [
     description:
       "A special sun-fade wash on 240 GSM cotton that gives every piece a softened, lived-in tone. Broken in before it reaches you.",
     details: ["240 GSM special wash cotton", "Tonal sun-faded finish", "Soft, worn-in hand feel"],
-    colors: ["Green", "Grey"],
+    colors: ["Olive Green", "Grey"],
     sizes: SIZES_S_XL,
     price: "₹1,099/-",
   },
