@@ -260,7 +260,7 @@ function Products({ onRegister }: { onRegister: (product: Product) => void }) {
                       loading="lazy"
                       width={1120}
                       height={1408}
-                      className="img-zoom aspect-[4/5] w-full object-cover"
+                      className="img-zoom aspect-[4/5] w-full object-cover object-top"
                     />
                   )}
                   <span className="absolute top-4 left-4 z-10 bg-background/90 px-3 py-1 text-[0.6rem] tracking-[0.18em] uppercase">

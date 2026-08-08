@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { PRODUCTS, type Product } from "@/data/products";
-import { registerInterest } from "@/lib/leads.functions";
+import { submitReservation } from "@/lib/reservations.functions";
+import { makeReservationId } from "@/lib/reservation-utils";
 
 type Props = {
   open: boolean;
@@ -45,7 +46,7 @@ const isValidMobile = (value: string) => /^[6-9]\d{9}$/.test(value.trim());
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
 export function RegisterDialog({ open, onOpenChange, product }: Props) {
-  const submit = useServerFn(registerInterest);
+  const submit = useServerFn(submitReservation);
 
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [touched, setTouched] = useState<{ fullName?: boolean; mobile?: boolean; email?: boolean }>(
@@ -56,9 +57,11 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
   const [termsError, setTermsError] = useState(false);
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState<{ discountCode: string } | null>(null);
+  const [done, setDone] = useState<{ reservationId: string } | null>(null);
+  const [duplicate, setDuplicate] = useState<{ reservationId: string | null } | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const hydrated = useRef(false);
+  const pendingId = useRef<string | null>(null);
 
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) =>
     setDraft((prev) => ({ ...prev, [key]: value }));
@@ -67,6 +70,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
   useEffect(() => {
     if (!open) return;
     setDone(null);
+    setDuplicate(null);
     setFormError("");
     setTermsError(false);
     setTouched({});
@@ -101,7 +105,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-  }, [draft.step, done]);
+  }, [draft.step, done, duplicate]);
 
   const selectedProducts = useMemo(
     () => PRODUCTS.filter((p) => draft.products.includes(p.name)),
@@ -159,27 +163,27 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
       setTermsError(true);
       return;
     }
+    if (loading) return;
     setLoading(true);
     setFormError("");
     try {
-      const selection = selectedProducts.map((p) => ({
+      const items = selectedProducts.map((p) => ({
         productName: p.name,
         size: draft.variants[p.name]?.size ?? "",
         colour: draft.variants[p.name]?.color ?? "",
       }));
+      // Reuse the same id across retries so a partial write is never duplicated.
+      pendingId.current ??= makeReservationId();
       const result = await submit({
         data: {
+          reservationId: pendingId.current,
           fullName: draft.fullName.trim(),
           mobile: draft.mobile.trim(),
           email: draft.email.trim(),
           city: draft.city.trim(),
-          products: selection.map((s) => `${s.productName} (${s.size} · ${s.colour})`),
-          size: selection.length === 1 ? selection[0]!.size : "",
-          color: selection.length === 1 ? selection[0]!.colour : "",
-          quantity: 1,
           whatsappOptIn,
-          marketingConsent: whatsappOptIn,
-          source: "landing_page",
+          termsAccepted: true as const,
+          items,
         },
       });
       try {
@@ -187,9 +191,15 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
       } catch {
         /* ignore */
       }
-      setDone({ discountCode: result.discountCode });
+      if (result.status === "duplicate") {
+        setDuplicate({ reservationId: result.reservationId });
+      } else {
+        setDone({ reservationId: result.reservationId });
+      }
     } catch {
-      setFormError("Something went wrong. Please try again in a moment.");
+      setFormError(
+        "We couldn't complete your reservation right now. Please try again in a moment.",
+      );
     } finally {
       setLoading(false);
     }
@@ -200,10 +210,15 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
       <DialogContent
         className="flex h-[100dvh] max-h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 bg-background p-0 top-0 left-0 sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[92vh] sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:border sm:border-border [&>button:last-child]:hidden"
       >
-        {done ? (
+        {duplicate ? (
+          <AlreadyReservedScreen
+            reservationId={duplicate.reservationId}
+            onClose={() => onOpenChange(false)}
+          />
+        ) : done ? (
           <SuccessScreen
             firstName={draft.fullName.trim().split(" ")[0] ?? ""}
-            code={done.discountCode}
+            code={done.reservationId}
             onClose={() => onOpenChange(false)}
           />
         ) : (
@@ -611,10 +626,11 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="mr-2 size-4 animate-spin" /> Reserving
+                      <Loader2 className="mr-2 size-4 animate-spin" /> Reserving your launch
+                      access...
                     </>
                   ) : (
-                    "Reserve My Launch Access"
+                    formError ? "Try Again" : "Reserve My Launch Access"
                   )}
                 </Button>
               ) : null}
@@ -700,8 +716,9 @@ function SuccessScreen({
         </DialogDescription>
 
         <div className="animate-fade-in mx-auto mt-8 w-full max-w-xs border border-border bg-muted/60 p-5">
-          <p className="eyebrow">Your reserved code</p>
+          <p className="eyebrow">Reservation ID</p>
           <p className="mt-2 font-display text-3xl tracking-wide">{code}</p>
+          <p className="mt-3 text-xs text-muted-foreground">Save this ID for your records.</p>
         </div>
       </div>
 
@@ -715,6 +732,51 @@ function SuccessScreen({
             Follow AB Collection
           </a>
         </Button>
+        <Button
+          variant="outline"
+          onClick={onClose}
+          className="h-14 w-full rounded-none border-foreground text-xs tracking-[0.2em] uppercase"
+        >
+          Return to Website
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function AlreadyReservedScreen({
+  reservationId,
+  onClose,
+}: {
+  reservationId: string | null;
+  onClose: () => void;
+}) {
+  return (
+    <div className="flex h-full flex-col overflow-y-auto px-6 py-12 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center">
+        <div className="animate-scale-in mx-auto flex size-16 items-center justify-center rounded-full bg-olive text-olive-foreground">
+          <Check className="size-7" strokeWidth={1.5} />
+        </div>
+        <DialogTitle asChild>
+          <h2 className="animate-fade-in mt-8 font-display text-5xl leading-tight">
+            You're already on the list.
+          </h2>
+        </DialogTitle>
+        <DialogDescription asChild>
+          <p className="animate-fade-in mx-auto mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            Your AB Collection launch access is already reserved.
+          </p>
+        </DialogDescription>
+
+        {reservationId ? (
+          <div className="animate-fade-in mx-auto mt-8 w-full max-w-xs border border-border bg-muted/60 p-5">
+            <p className="eyebrow">Reservation ID</p>
+            <p className="mt-2 font-display text-3xl tracking-wide">{reservationId}</p>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="mt-10 flex flex-col gap-3">
         <Button
           variant="outline"
           onClick={onClose}
