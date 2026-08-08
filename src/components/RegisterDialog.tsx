@@ -18,16 +18,15 @@ type Props = {
 
 const STORAGE_KEY = "ab-reservation-draft";
 const TOTAL_STEPS = 4;
-const BASE_SIZES = ["S", "M", "L", "XL"];
-const COLOR_OPTIONS = ["Black", "White", "Beige", "Grey", "Olive", "Other"];
+
+type Variant = { size: string; color: string };
 
 type Draft = {
   step: number;
   products: string[];
-  size: string;
+  variants: Record<string, Variant>;
   fullName: string;
   mobile: string;
-  color: string;
   city: string;
   email: string;
 };
@@ -35,10 +34,9 @@ type Draft = {
 const EMPTY: Draft = {
   step: 1,
   products: [],
-  size: "",
+  variants: {},
   fullName: "",
   mobile: "",
-  color: "",
   city: "",
   email: "",
 };
@@ -110,15 +108,45 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
     [draft.products],
   );
 
-  const sizeOptions = useMemo(() => {
-    const pool = selectedProducts.length ? selectedProducts : PRODUCTS;
-    const extended = pool.every((p) => p.sizes.includes("XXL"));
-    return extended ? [...BASE_SIZES, "XXL"] : BASE_SIZES;
-  }, [selectedProducts]);
-
+  // Drop variant state for deselected products and clear values that are not
+  // available for the product they belong to.
   useEffect(() => {
-    if (draft.size && !sizeOptions.includes(draft.size)) set("size", "");
-  }, [sizeOptions, draft.size]);
+    setDraft((prev) => {
+      const next: Record<string, Variant> = {};
+      let changed = false;
+      for (const p of PRODUCTS) {
+        if (!prev.products.includes(p.name)) {
+          if (prev.variants[p.name]) changed = true;
+          continue;
+        }
+        const current = prev.variants[p.name] ?? { size: "", color: "" };
+        const cleaned: Variant = {
+          size: p.sizes.includes(current.size) ? current.size : "",
+          color: p.colors.includes(current.color) ? current.color : "",
+        };
+        if (cleaned.size !== current.size || cleaned.color !== current.color) changed = true;
+        if (!prev.variants[p.name]) changed = true;
+        next[p.name] = cleaned;
+      }
+      return changed ? { ...prev, variants: next } : prev;
+    });
+  }, [draft.products]);
+
+  const setVariant = (name: string, key: keyof Variant, value: string) =>
+    setDraft((prev) => ({
+      ...prev,
+      variants: {
+        ...prev.variants,
+        [name]: { size: "", color: "", ...prev.variants[name], [key]: value },
+      },
+    }));
+
+  const variantsComplete =
+    selectedProducts.length > 0 &&
+    selectedProducts.every((p) => {
+      const v = draft.variants[p.name];
+      return !!v && p.sizes.includes(v.size) && p.colors.includes(v.color);
+    });
 
   const nameValid = draft.fullName.trim().length >= 2;
   const mobileValid = isValidMobile(draft.mobile);
@@ -134,15 +162,20 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
     setLoading(true);
     setFormError("");
     try {
+      const selection = selectedProducts.map((p) => ({
+        productName: p.name,
+        size: draft.variants[p.name]?.size ?? "",
+        colour: draft.variants[p.name]?.color ?? "",
+      }));
       const result = await submit({
         data: {
           fullName: draft.fullName.trim(),
           mobile: draft.mobile.trim(),
           email: draft.email.trim(),
           city: draft.city.trim(),
-          products: draft.products,
-          size: draft.size,
-          color: draft.color,
+          products: selection.map((s) => `${s.productName} (${s.size} · ${s.colour})`),
+          size: selection.length === 1 ? selection[0]!.size : "",
+          color: selection.length === 1 ? selection[0]!.colour : "",
           quantity: 1,
           whatsappOptIn,
           marketingConsent: whatsappOptIn,
