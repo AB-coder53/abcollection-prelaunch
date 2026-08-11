@@ -18,6 +18,9 @@ import fabricImage from "@/assets/fabric.jpg";
 import { PRODUCTS, type Product } from "@/data/products";
 import { Reveal } from "@/components/Reveal";
 import { RegisterDialog } from "@/components/RegisterDialog";
+import { EarlyAccessOverlay } from "@/components/EarlyAccessOverlay";
+import { trackEvent } from "@/lib/early-access";
+import { useEarlyAccess } from "@/hooks/use-early-access";
 import { Button } from "@/components/ui/button";
 
 const TITLE = "AB Collection — Premium Everyday Essentials, Launching Soon";
@@ -58,24 +61,36 @@ const LAUNCH_LABEL = "Launching soon";
 function Landing() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Product | null>(null);
+  const { unlocked } = useEarlyAccess();
+  const [earlyAccessOpen, setEarlyAccessOpen] = useState(false);
+  const ctaLabel = unlocked ? "RESERVE MY LAUNCH ACCESS" : "GET EARLY ACCESS + 10%";
 
   const register = (product: Product | null) => {
     setSelected(product);
     setOpen(true);
+    trackEvent("reservation_started", product ? { product: product.name } : {});
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onRegister={() => register(null)} />
+      <EarlyAccessOverlay
+        forceOpen={earlyAccessOpen}
+        onClose={() => setEarlyAccessOpen(false)}
+      />
+      <Header
+        unlocked={unlocked}
+        onEarlyAccess={() => setEarlyAccessOpen(true)}
+        onRegister={() => register(null)}
+      />
       <main>
-        <Hero onRegister={() => register(null)} />
+        <Hero ctaLabel={ctaLabel} onRegister={() => register(null)} />
         <Marquee />
         <Manifesto />
         <Products onRegister={register} />
-        <FabricStory onRegister={() => register(null)} />
+        <FabricStory ctaLabel={ctaLabel} onRegister={() => register(null)} />
         <Offer onRegister={() => register(null)} />
         <Founder />
-        <Faq onRegister={() => register(null)} />
+        <Faq ctaLabel={ctaLabel} onRegister={() => register(null)} />
       </main>
       <Footer />
       <RegisterDialog open={open} onOpenChange={setOpen} product={selected} />
@@ -83,7 +98,15 @@ function Landing() {
   );
 }
 
-function Header({ onRegister }: { onRegister: () => void }) {
+function Header({
+  unlocked,
+  onEarlyAccess,
+  onRegister,
+}: {
+  unlocked: boolean;
+  onEarlyAccess: () => void;
+  onRegister: () => void;
+}) {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-10">
@@ -102,17 +125,17 @@ function Header({ onRegister }: { onRegister: () => void }) {
           </a>
         </nav>
         <Button
-          onClick={onRegister}
+          onClick={unlocked ? onRegister : onEarlyAccess}
           className="h-10 rounded-none px-5 text-[0.65rem] tracking-[0.2em] uppercase"
         >
-          GET EARLY ACCESS + 10%
+          {unlocked ? "RESERVE NOW" : "GET EARLY ACCESS + 10%"}
         </Button>
       </div>
     </header>
   );
 }
 
-function Hero({ onRegister }: { onRegister: () => void }) {
+function Hero({ ctaLabel, onRegister }: { ctaLabel: string; onRegister: () => void }) {
   return (
     <section className="relative">
       <div className="mx-auto grid max-w-7xl items-stretch gap-0 px-0 lg:grid-cols-[1fr_1fr]">
@@ -133,7 +156,7 @@ function Hero({ onRegister }: { onRegister: () => void }) {
               onClick={onRegister}
               className="h-14 rounded-none px-10 text-xs tracking-[0.2em] uppercase"
             >
-              GET EARLY ACCESS + 10% <ArrowRight className="ml-2 size-4" strokeWidth={1.5} />
+              {ctaLabel} <ArrowRight className="ml-2 size-4" strokeWidth={1.5} />
             </Button>
             <p className="text-xs leading-relaxed text-muted-foreground">
               No payment today.
@@ -368,7 +391,7 @@ function ImageSlider({ product }: { product: Product }) {
   );
 }
 
-function FabricStory({ onRegister }: { onRegister: () => void }) {
+function FabricStory({ ctaLabel, onRegister }: { ctaLabel: string; onRegister: () => void }) {
   return (
     <section id="craft" className="grid lg:grid-cols-2">
       <div className="relative min-h-[50vh] overflow-hidden">
@@ -412,7 +435,7 @@ function FabricStory({ onRegister }: { onRegister: () => void }) {
             variant="outline"
             className="mt-12 h-13 rounded-none border-ink-foreground/40 bg-transparent px-8 text-xs tracking-[0.2em] text-ink-foreground uppercase hover:bg-ink-foreground hover:text-ink"
           >
-            GET EARLY ACCESS + 10%
+            {ctaLabel}
           </Button>
         </Reveal>
       </div>
@@ -509,7 +532,7 @@ const FAQS = [
   ["How will you use my details?", "Only to tell you about the launch and fulfil your order. We never sell your data, and you can unsubscribe at any time."],
 ];
 
-function Faq({ onRegister }: { onRegister: () => void }) {
+function Faq({ ctaLabel, onRegister }: { ctaLabel: string; onRegister: () => void }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
@@ -566,7 +589,7 @@ function Faq({ onRegister }: { onRegister: () => void }) {
             onClick={onRegister}
             className="mt-10 h-13 rounded-none px-10 text-xs tracking-[0.2em] uppercase"
           >
-            GET EARLY ACCESS + 10%
+            {ctaLabel}
           </Button>
         </div>
       </div>

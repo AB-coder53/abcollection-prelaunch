@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { PRODUCTS, type Product } from "@/data/products";
 import { submitReservation } from "@/lib/reservations.functions";
 import { makeReservationId } from "@/lib/reservation-utils";
+import { readEarlyAccessEmail } from "@/lib/early-access";
 
 type Props = {
   open: boolean;
@@ -89,7 +90,14 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
         ? [...base.products, product.name]
         : base.products;
 
-    setDraft({ ...base, products: preselected });
+    // Prefill the email captured in the Early Access layer, if the visitor
+    // hasn't already typed one into this form.
+    const earlyAccessEmail = readEarlyAccessEmail();
+    setDraft({
+      ...base,
+      products: preselected,
+      email: base.email || earlyAccessEmail,
+    });
     hydrated.current = true;
   }, [open, product]);
 
