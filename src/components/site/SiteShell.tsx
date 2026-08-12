@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
 import { EarlyAccessOverlay } from "@/components/EarlyAccessOverlay";
 import { RegisterDialog } from "@/components/RegisterDialog";
@@ -68,10 +61,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
   return (
     <ReservationContext.Provider value={value}>
       <div className="min-h-screen bg-background text-foreground">
-        <EarlyAccessOverlay
-          forceOpen={earlyAccessOpen}
-          onClose={() => setEarlyAccessOpen(false)}
-        />
+        <EarlyAccessOverlay forceOpen={earlyAccessOpen} onClose={() => setEarlyAccessOpen(false)} />
         <SiteHeader />
         <main>{children}</main>
         <SiteFooter />

@@ -86,7 +86,9 @@ export function ProductDetail({ product }: { product: Product }) {
           {product.name}
         </h1>
         <p className="mt-4 text-2xl font-semibold text-teal">{product.price}</p>
-        <p className="mt-6 text-base leading-relaxed text-muted-foreground">{product.description}</p>
+        <p className="mt-6 text-base leading-relaxed text-muted-foreground">
+          {product.description}
+        </p>
 
         <ul className="mt-8 space-y-3">
           {product.details.map((detail) => (

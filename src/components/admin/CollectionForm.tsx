@@ -116,16 +116,29 @@ export function CollectionForm({
         </div>
       </div>
 
-      <ImageUploadField label="Collection image" value={form.image} onChange={(v) => set("image", v)} />
+      <ImageUploadField
+        label="Collection image"
+        value={form.image}
+        onChange={(v) => set("image", v)}
+      />
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={saving} className="rounded-full bg-teal text-teal-foreground">
+        <Button
+          type="submit"
+          disabled={saving}
+          className="rounded-full bg-teal text-teal-foreground"
+        >
           {saving ? <Loader2 className="size-4 animate-spin" /> : null}
           {mode === "create" ? "Create collection" : "Save changes"}
         </Button>
-        <Button type="button" variant="outline" className="rounded-full" onClick={() => router.back()}>
+        <Button
+          type="button"
+          variant="outline"
+          className="rounded-full"
+          onClick={() => router.back()}
+        >
           Cancel
         </Button>
       </div>

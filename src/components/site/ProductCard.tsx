@@ -11,7 +11,10 @@ export function ProductCard({ product, badge }: { product: Product; badge?: stri
 
   return (
     <article className="flex h-full flex-col rounded-3xl border border-border bg-background p-4 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-      <Link href={`/collection/${product.id}`} className="relative overflow-hidden rounded-2xl bg-muted">
+      <Link
+        href={`/collection/${product.id}`}
+        className="relative overflow-hidden rounded-2xl bg-muted"
+      >
         {badge ? (
           <span className="absolute top-3 right-3 z-10 rounded-full bg-white px-3 py-1 text-[0.65rem] font-semibold tracking-[0.08em] text-foreground uppercase shadow-sm">
             {badge}

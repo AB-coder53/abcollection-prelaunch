@@ -27,7 +27,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     if (error instanceof ZodError) {
-      return NextResponse.json({ error: error.issues[0]?.message ?? "Invalid product" }, { status: 400 });
+      return NextResponse.json(
+        { error: error.issues[0]?.message ?? "Invalid product" },
+        { status: 400 },
+      );
     }
     const message = error instanceof Error ? error.message : "Could not create product";
     return NextResponse.json({ error: message }, { status: 400 });

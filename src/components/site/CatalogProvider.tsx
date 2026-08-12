@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import type { Catalog, Collection, Product } from "@/lib/catalog-types";
 
@@ -20,16 +13,8 @@ type CatalogContextValue = {
 
 const CatalogContext = createContext<CatalogContextValue | null>(null);
 
-export function CatalogProvider({
-  children,
-  initial,
-}: {
-  children: ReactNode;
-  initial?: Catalog;
-}) {
-  const [catalog, setCatalog] = useState<Catalog>(
-    initial ?? { products: [], collections: [] },
-  );
+export function CatalogProvider({ children, initial }: { children: ReactNode; initial?: Catalog }) {
+  const [catalog, setCatalog] = useState<Catalog>(initial ?? { products: [], collections: [] });
   const [ready, setReady] = useState(Boolean(initial));
 
   const refresh = async () => {

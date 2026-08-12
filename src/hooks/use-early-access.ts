@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 
-import { EARLY_ACCESS_EVENT, isEarlyAccessUnlocked, readEarlyAccessEmail } from "@/lib/early-access";
+import {
+  EARLY_ACCESS_EVENT,
+  isEarlyAccessUnlocked,
+  readEarlyAccessEmail,
+} from "@/lib/early-access";
 
 /** Single source of truth for early-access state, shared across the page. */
 export function useEarlyAccess() {

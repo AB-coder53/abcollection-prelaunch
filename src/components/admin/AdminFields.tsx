@@ -53,7 +53,11 @@ export function ImageUploadField({
             onChange={(e) => onFile(e.target.files?.[0] ?? null)}
           />
           <span className="inline-flex h-11 items-center gap-2 rounded-xl border border-border bg-white px-4 text-sm font-medium">
-            {uploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+            {uploading ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Upload className="size-4" />
+            )}
             Upload
           </span>
         </label>

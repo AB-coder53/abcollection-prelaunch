@@ -11,9 +11,7 @@ export async function GET() {
   const session = await getAdminSession();
   // Use 200 so browsers don't log a noisy 401 on session checks
   return NextResponse.json(
-    session
-      ? { authenticated: true, username: session.username }
-      : { authenticated: false },
+    session ? { authenticated: true, username: session.username } : { authenticated: false },
   );
 }
 

@@ -50,7 +50,10 @@ export default async function CollectionPage() {
         </div>
         <p className="mx-auto mt-12 max-w-xl text-center text-sm text-muted-foreground">
           Looking for something specific?{" "}
-          <Link href="/contact" className="font-medium text-teal underline-offset-4 hover:underline">
+          <Link
+            href="/contact"
+            className="font-medium text-teal underline-offset-4 hover:underline"
+          >
             Contact us
           </Link>{" "}
           or read our{" "}

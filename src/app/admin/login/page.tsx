@@ -44,7 +44,9 @@ function LoginForm() {
         className="w-full max-w-md rounded-3xl border border-border bg-white p-8 shadow-sm"
       >
         <p className="font-display text-3xl font-bold">AB Admin</p>
-        <p className="mt-2 text-sm text-muted-foreground">Sign in to manage products and collections.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Sign in to manage products and collections.
+        </p>
 
         <div className="mt-8 space-y-4">
           <div>

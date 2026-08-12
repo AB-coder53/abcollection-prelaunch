@@ -13,13 +13,7 @@ const LINKS = [
   { href: "/admin/collections", label: "Collections" },
 ];
 
-export function AdminShell({
-  children,
-  username,
-}: {
-  children: ReactNode;
-  username: string;
-}) {
+export function AdminShell({ children, username }: { children: ReactNode; username: string }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -43,7 +37,10 @@ export function AdminShell({
                 View site
               </Link>
             </Button>
-            <Button onClick={logout} className="rounded-full bg-ink text-ink-foreground hover:bg-ink/90">
+            <Button
+              onClick={logout}
+              className="rounded-full bg-ink text-ink-foreground hover:bg-ink/90"
+            >
               Log out
             </Button>
           </div>
@@ -58,7 +55,9 @@ export function AdminShell({
                 href={link.href}
                 className={cn(
                   "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                  active ? "bg-teal text-teal-foreground" : "bg-muted text-foreground hover:bg-border",
+                  active
+                    ? "bg-teal text-teal-foreground"
+                    : "bg-muted text-foreground hover:bg-border",
                 )}
               >
                 {link.label}

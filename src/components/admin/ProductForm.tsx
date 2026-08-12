@@ -26,13 +26,7 @@ const emptyProduct = (): Product => ({
   sortOrder: 0,
 });
 
-export function ProductForm({
-  mode,
-  initial,
-}: {
-  mode: "create" | "edit";
-  initial?: Product;
-}) {
+export function ProductForm({ mode, initial }: { mode: "create" | "edit"; initial?: Product }) {
   const router = useRouter();
   const [form, setForm] = useState<Product>(initial ?? emptyProduct());
   const [error, setError] = useState("");
@@ -84,9 +78,20 @@ export function ProductForm({
         />
         <Field label="Name" value={form.name} onChange={(v) => set("name", v)} required />
         <Field label="Fabric" value={form.fabric} onChange={(v) => set("fabric", v)} required />
-        <Field label="Price" value={form.price} onChange={(v) => set("price", v)} required placeholder="₹799/-" />
+        <Field
+          label="Price"
+          value={form.price}
+          onChange={(v) => set("price", v)}
+          required
+          placeholder="₹799/-"
+        />
         <Field label="Tagline" value={form.tagline} onChange={(v) => set("tagline", v)} required />
-        <Field label="Badge" value={form.badge ?? ""} onChange={(v) => set("badge", v)} placeholder="New / Popular" />
+        <Field
+          label="Badge"
+          value={form.badge ?? ""}
+          onChange={(v) => set("badge", v)}
+          placeholder="New / Popular"
+        />
         <Field
           label="Sort order"
           type="number"
@@ -128,11 +133,20 @@ export function ProductForm({
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={saving} className="rounded-full bg-teal text-teal-foreground">
+        <Button
+          type="submit"
+          disabled={saving}
+          className="rounded-full bg-teal text-teal-foreground"
+        >
           {saving ? <Loader2 className="size-4 animate-spin" /> : null}
           {mode === "create" ? "Create product" : "Save changes"}
         </Button>
-        <Button type="button" variant="outline" className="rounded-full" onClick={() => router.back()}>
+        <Button
+          type="button"
+          variant="outline"
+          className="rounded-full"
+          onClick={() => router.back()}
+        >
           Cancel
         </Button>
       </div>

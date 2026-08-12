@@ -30,8 +30,8 @@ export default function AboutPage() {
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground">
             Most everyday clothing asks you to compromise. Either it feels good and falls apart, or
-            it lasts and never feels like yours. AB Collection is premium construction without luxury
-            pricing.
+            it lasts and never feels like yours. AB Collection is premium construction without
+            luxury pricing.
           </p>
         </div>
       </section>
@@ -50,9 +50,9 @@ export default function AboutPage() {
               Comfort first. Always.
             </h2>
             <p className="mt-5 text-sm leading-relaxed text-muted-foreground sm:text-base">
-              We spent months on fabric weight, shrinkage and neck ribbing so you never have to think
-              about any of it. Buy fewer things. Wear them for years. Every piece is made in India
-              with partner units we visit ourselves.
+              We spent months on fabric weight, shrinkage and neck ribbing so you never have to
+              think about any of it. Buy fewer things. Wear them for years. Every piece is made in
+              India with partner units we visit ourselves.
             </p>
             <ul className="mt-8 grid gap-4 sm:grid-cols-2">
               {[

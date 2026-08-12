@@ -7,13 +7,7 @@ import { CatalogProvider } from "@/components/site/CatalogProvider";
 import { SiteShell } from "@/components/site/SiteShell";
 import type { Catalog } from "@/lib/catalog-types";
 
-export function AppProviders({
-  children,
-  catalog,
-}: {
-  children: ReactNode;
-  catalog: Catalog;
-}) {
+export function AppProviders({ children, catalog }: { children: ReactNode; catalog: Catalog }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
 

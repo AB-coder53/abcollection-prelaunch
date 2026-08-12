@@ -199,7 +199,9 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
       });
       const payload = (await response.json()) as ReservationResult | { error?: string };
       if (!response.ok || !("status" in payload)) {
-        throw new Error("status" in payload ? "Reservation failed" : (payload.error ?? "Reservation failed"));
+        throw new Error(
+          "status" in payload ? "Reservation failed" : (payload.error ?? "Reservation failed"),
+        );
       }
       try {
         window.localStorage.removeItem(STORAGE_KEY);
@@ -222,9 +224,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="flex h-[100dvh] max-h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 bg-background p-0 top-0 left-0 sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[92vh] sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:border sm:border-border [&>button:last-child]:hidden"
-      >
+      <DialogContent className="flex h-[100dvh] max-h-[100dvh] w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-0 bg-background p-0 top-0 left-0 sm:top-1/2 sm:left-1/2 sm:h-auto sm:max-h-[92vh] sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:border sm:border-border [&>button:last-child]:hidden">
         {duplicate ? (
           <AlreadyReservedScreen
             reservationId={duplicate.reservationId}
@@ -343,7 +343,6 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                       );
                     })}
                   </div>
-
                 </StepShell>
               ) : null}
 
@@ -412,7 +411,6 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                 </StepShell>
               ) : null}
 
-
               {draft.step === 3 ? (
                 <StepShell
                   title="Reserve Your Launch Access"
@@ -468,9 +466,9 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                   </div>
 
                   <p className="mt-9 eyebrow">
-                    Optional <span className="normal-case opacity-60">— helps us plan delivery</span>
+                    Optional{" "}
+                    <span className="normal-case opacity-60">— helps us plan delivery</span>
                   </p>
-
 
                   <div className="mt-8">
                     <Label htmlFor="city" className="eyebrow">
@@ -548,7 +546,6 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                     Edit selection
                   </button>
 
-
                   <ul className="mt-7 space-y-3">
                     {[
                       "10% Launch Discount Reserved",
@@ -564,7 +561,10 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                   </ul>
 
                   <div className="mt-8 space-y-4 border-t border-border pt-6">
-                    <label htmlFor="whatsapp" className="flex cursor-pointer items-start gap-3 text-sm">
+                    <label
+                      htmlFor="whatsapp"
+                      className="flex cursor-pointer items-start gap-3 text-sm"
+                    >
                       <Checkbox
                         id="whatsapp"
                         checked={whatsappOptIn}
@@ -576,7 +576,10 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                       </span>
                     </label>
                     <div>
-                      <label htmlFor="terms" className="flex cursor-pointer items-start gap-3 text-sm">
+                      <label
+                        htmlFor="terms"
+                        className="flex cursor-pointer items-start gap-3 text-sm"
+                      >
                         <Checkbox
                           id="terms"
                           checked={terms}
@@ -598,9 +601,7 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                     </div>
                   </div>
 
-                  {formError ? (
-                    <p className="mt-4 text-sm text-destructive">{formError}</p>
-                  ) : null}
+                  {formError ? <p className="mt-4 text-sm text-destructive">{formError}</p> : null}
                 </StepShell>
               ) : null}
             </div>
@@ -644,8 +645,10 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
                       <Loader2 className="mr-2 size-4 animate-spin" /> Reserving your launch
                       access...
                     </>
+                  ) : formError ? (
+                    "Try Again"
                   ) : (
-                    formError ? "Try Again" : "Reserve My Launch Access"
+                    "Reserve My Launch Access"
                   )}
                 </Button>
               ) : null}

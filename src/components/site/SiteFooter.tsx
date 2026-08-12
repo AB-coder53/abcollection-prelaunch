@@ -57,7 +57,11 @@ export function SiteFooter() {
           aria-label="Footer"
         >
           {NAV_LINKS.map((link) => (
-            <Link key={link.href} href={link.href} className="transition-colors hover:text-foreground">
+            <Link
+              key={link.href}
+              href={link.href}
+              className="transition-colors hover:text-foreground"
+            >
               {link.label}
             </Link>
           ))}

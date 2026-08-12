@@ -105,12 +105,12 @@ export function HomeDiscover({ collections }: { collections: Collection[] }) {
 
       <div className="mx-auto mt-12 grid max-w-6xl gap-6 md:grid-cols-3">
         {collections.map((category, index) => {
-          const href = category.productId
-            ? `/collection/${category.productId}`
-            : "/collection";
+          const href = category.productId ? `/collection/${category.productId}` : "/collection";
           return (
             <Reveal key={category.id} delay={index * 90}>
-              <article className={`${category.tint} overflow-hidden rounded-[1.75rem] p-4 pb-5 shadow-sm`}>
+              <article
+                className={`${category.tint} overflow-hidden rounded-[1.75rem] p-4 pb-5 shadow-sm`}
+              >
                 <Link href={href} className="block overflow-hidden rounded-[1.25rem] bg-white/40">
                   <img
                     src={category.image}

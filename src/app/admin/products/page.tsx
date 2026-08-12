@@ -24,7 +24,9 @@ export default async function AdminProductsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl font-bold">Products</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Create, edit, or delete catalogue items.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Create, edit, or delete catalogue items.
+          </p>
         </div>
         <Link
           href="/admin/products/new"

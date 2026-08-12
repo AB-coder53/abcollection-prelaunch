@@ -89,11 +89,15 @@ export function EarlyAccessOverlay({ forceOpen = false, onClose, onEmailCaptured
       });
       const payload = (await response.json()) as EarlyAccessResult | { error?: string };
       if (!response.ok || !("status" in payload)) {
-        throw new Error("error" in payload ? (payload.error ?? "Request failed") : "Request failed");
+        throw new Error(
+          "error" in payload ? (payload.error ?? "Request failed") : "Request failed",
+        );
       }
       saveEarlyAccess(payload.email);
       onEmailCaptured?.(payload.email);
-      trackEvent(payload.status === "existing" ? "early_access_duplicate" : "early_access_submitted");
+      trackEvent(
+        payload.status === "existing" ? "early_access_duplicate" : "early_access_submitted",
+      );
       setSuccess(true);
       window.setTimeout(close, 1400);
     } catch {

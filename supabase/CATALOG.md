@@ -13,25 +13,28 @@ Find it under **Project Settings → API → service_role**.
 ## Tables
 
 ### `products`
-| Column | Type | Notes |
-|---|---|---|
-| id | text PK | slug e.g. `oversized-240` |
-| name, fabric, image, tagline, description, price | text | |
-| images, details, colors, sizes | text[] | |
-| badge | text nullable | |
-| featured | boolean | homepage featured |
-| sort_order | int | display order |
-| created_at / updated_at | timestamptz | auto |
+
+| Column                                           | Type          | Notes                     |
+| ------------------------------------------------ | ------------- | ------------------------- |
+| id                                               | text PK       | slug e.g. `oversized-240` |
+| name, fabric, image, tagline, description, price | text          |                           |
+| images, details, colors, sizes                   | text[]        |                           |
+| badge                                            | text nullable |                           |
+| featured                                         | boolean       | homepage featured         |
+| sort_order                                       | int           | display order             |
+| created_at / updated_at                          | timestamptz   | auto                      |
 
 ### `collections`
-| Column | Type | Notes |
-|---|---|---|
-| id | text PK | slug e.g. `oversized` |
-| title, image, tint | text | |
-| product_id | text FK → products.id | nullable, SET NULL on delete |
-| sort_order | int | |
-| created_at / updated_at | timestamptz | auto |
+
+| Column                  | Type                  | Notes                        |
+| ----------------------- | --------------------- | ---------------------------- |
+| id                      | text PK               | slug e.g. `oversized`        |
+| title, image, tint      | text                  |                              |
+| product_id              | text FK → products.id | nullable, SET NULL on delete |
+| sort_order              | int                   |                              |
+| created_at / updated_at | timestamptz           | auto                         |
 
 ## Security
+
 - Public (`anon`) can **SELECT** only
 - Admin create/update/delete uses **service_role** via Next.js API routes
