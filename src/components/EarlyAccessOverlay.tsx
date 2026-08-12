@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { joinEarlyAccess } from "@/lib/early-access.functions";
+import type { EarlyAccessResult } from "@/lib/api-types";
 import { isEarlyAccessUnlocked, saveEarlyAccess, trackEvent } from "@/lib/early-access";
 
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -18,7 +17,6 @@ type Props = {
 };
 
 export function EarlyAccessOverlay({ forceOpen = false, onClose, onEmailCaptured }: Props) {
-  const join = useServerFn(joinEarlyAccess);
   const [visible, setVisible] = useState(false);
   const [entered, setEntered] = useState(false);
   const [leaving, setLeaving] = useState(false);
@@ -84,10 +82,18 @@ export function EarlyAccessOverlay({ forceOpen = false, onClose, onEmailCaptured
     setLoading(true);
     inputRef.current?.blur(); // dismiss the mobile keyboard before the reveal
     try {
-      const result = await join({ data: { email: email.trim().toLowerCase() } });
-      saveEarlyAccess(result.email);
-      onEmailCaptured?.(result.email);
-      trackEvent(result.status === "existing" ? "early_access_duplicate" : "early_access_submitted");
+      const response = await fetch("/api/early-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
+      });
+      const payload = (await response.json()) as EarlyAccessResult | { error?: string };
+      if (!response.ok || !("status" in payload)) {
+        throw new Error("error" in payload ? (payload.error ?? "Request failed") : "Request failed");
+      }
+      saveEarlyAccess(payload.email);
+      onEmailCaptured?.(payload.email);
+      trackEvent(payload.status === "existing" ? "early_access_duplicate" : "early_access_submitted");
       setSuccess(true);
       window.setTimeout(close, 1400);
     } catch {
@@ -171,7 +177,7 @@ export function EarlyAccessOverlay({ forceOpen = false, onClose, onEmailCaptured
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="mt-6 h-13 w-full rounded-none text-xs tracking-luxe uppercase"
+                  className="mt-6 h-13 w-full rounded-full text-xs tracking-luxe uppercase"
                 >
                   {loading ? (
                     <>

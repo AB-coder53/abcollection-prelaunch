@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      products: {
+        Row: {
+          id: string
+          name: string
+          fabric: string
+          image: string
+          images: string[]
+          tagline: string
+          description: string
+          details: string[]
+          colors: string[]
+          sizes: string[]
+          price: string
+          badge: string | null
+          featured: boolean
+          sort_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          name: string
+          fabric: string
+          image: string
+          images?: string[]
+          tagline?: string
+          description?: string
+          details?: string[]
+          colors?: string[]
+          sizes?: string[]
+          price: string
+          badge?: string | null
+          featured?: boolean
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          fabric?: string
+          image?: string
+          images?: string[]
+          tagline?: string
+          description?: string
+          details?: string[]
+          colors?: string[]
+          sizes?: string[]
+          price?: string
+          badge?: string | null
+          featured?: boolean
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      collections: {
+        Row: {
+          id: string
+          title: string
+          image: string
+          product_id: string | null
+          tint: string
+          sort_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          title: string
+          image: string
+          product_id?: string | null
+          tint?: string
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          image?: string
+          product_id?: string | null
+          tint?: string
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collections_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prelaunch_leads: {
         Row: {
           city: string | null

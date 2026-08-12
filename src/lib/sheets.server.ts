@@ -1,3 +1,5 @@
+import "server-only";
+
 const GATEWAY = "https://connector-gateway.lovable.dev/google_sheets/v4/spreadsheets";
 
 function headers() {

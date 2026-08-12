@@ -1,5 +1,6 @@
+"use client";
+
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, Check, Loader2, X } from "lucide-react";
 
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -7,10 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { PRODUCTS, type Product } from "@/data/products";
-import { submitReservation } from "@/lib/reservations.functions";
+import type { Product } from "@/data/products";
+import type { ReservationResult } from "@/lib/api-types";
 import { makeReservationId } from "@/lib/reservation-utils";
 import { readEarlyAccessEmail } from "@/lib/early-access";
+import { useCatalog } from "@/components/site/CatalogProvider";
 
 type Props = {
   open: boolean;
@@ -47,8 +49,7 @@ const isValidMobile = (value: string) => /^[6-9]\d{9}$/.test(value.trim());
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 
 export function RegisterDialog({ open, onOpenChange, product }: Props) {
-  const submit = useServerFn(submitReservation);
-
+  const { products: PRODUCTS } = useCatalog();
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [touched, setTouched] = useState<{ fullName?: boolean; mobile?: boolean; email?: boolean }>(
     {},
@@ -182,8 +183,10 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
       }));
       // Reuse the same id across retries so a partial write is never duplicated.
       pendingId.current ??= makeReservationId();
-      const result = await submit({
-        data: {
+      const response = await fetch("/api/reservations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           reservationId: pendingId.current,
           fullName: draft.fullName.trim(),
           mobile: draft.mobile.trim(),
@@ -192,17 +195,21 @@ export function RegisterDialog({ open, onOpenChange, product }: Props) {
           whatsappOptIn,
           termsAccepted: true as const,
           items,
-        },
+        }),
       });
+      const payload = (await response.json()) as ReservationResult | { error?: string };
+      if (!response.ok || !("status" in payload)) {
+        throw new Error("status" in payload ? "Reservation failed" : (payload.error ?? "Reservation failed"));
+      }
       try {
         window.localStorage.removeItem(STORAGE_KEY);
       } catch {
         /* ignore */
       }
-      if (result.status === "duplicate") {
-        setDuplicate({ reservationId: result.reservationId });
+      if (payload.status === "duplicate") {
+        setDuplicate({ reservationId: payload.reservationId });
       } else {
-        setDone({ reservationId: result.reservationId });
+        setDone({ reservationId: payload.reservationId });
       }
     } catch {
       setFormError(
